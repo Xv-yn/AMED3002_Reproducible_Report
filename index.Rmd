@@ -1,7 +1,7 @@
 ---
-title: "AMED3002 Lab 1 Report"
-author: "Elwood Fong"
-date: "2025-02-26"
+title: "AMED3002 Reproducible Report"
+author: "SID: "
+date: "2025-05-07"
 output: 
   rmdformats::downcute:
     number_sections: false
@@ -14,167 +14,63 @@ output:
 library(knitr)
 knitr::opts_chunk$set(echo = TRUE)
 
-# setwd(file.path("C:", "Users", "elwoo", "Desktop", "University", "AMED3002"))
-setwd("~/Desktop/University/AMED3002/")
-
-frmgham_data <- read.csv("frmgham.csv", header = TRUE)
-
-frmgham_data$SEX <- sapply(frmgham_data$SEX, 
-                           function(x) switch(as.character(x),
-                                              "1" = "Male",
-                                              "2" = "Female"))
-frmgham_data$ANGINA <- sapply(frmgham_data$ANGINA, 
-                           function(x) switch(as.character(x),
-                                              "0" = "Free of Disease",
-                                              "1" = "Prevalent Disease"))
-frmgham_data$DEATH <- sapply(frmgham_data$DEATH, 
-                           function(x) switch(as.character(x),
-                                              "0" = "Alive",
-                                              "1" = "Dead"))
-frmgham_data$PERIOD <- sapply(frmgham_data$PERIOD, 
-                           function(x) switch(as.character(x),
-                                              "1" = "Period 1",
-                                              "2" = "Period 2",
-                                              "3" = "Period 3"))
 ```
+
 
 ## Abstract {#abstract}
 
-This study examines the relationship between systolic blood pressure and disease status, as well as gender differences in disease prevalence over time using data from individuals in Framingham, America. Findings indicate that individuals free of disease tend to have lower and more concentrated systolic blood pressure levels, whereas those with prevalent angina exhibit greater variability and higher average values. Additionally, a higher proportion of females remain disease-free compared to males, though angina prevalence is slightly higher among females. The stability of these trends over time suggests consistent patterns rather than random fluctuations. While these findings provide valuable insights into cardiovascular health risks, the limited geographic scope of the data may affect generalization. Future research should investigate genetic, behavioral, and environmental factors contributing to these differences to inform targeted prevention and treatment strategies.
+
 
 ## Introduction {#introduction}
 
-This study begin in 1948 with 5,209 subjects (aged 30 to 62) initially enrolled from the town of Framingham in America. Participant data was collected over three periods, approximately 6 years apart. These participants were monitored via regular surveillance of area hospitals, participant contact, and death certificates, to identify potential characteristics of cardiovascular disease risk factors and the effects of lifestyle choices. The purpose of this report is to analyze the relationship between various factors and the presence of Angina Pectoris.
+- [ ] Purpose and information accurate, concise and discerning and organised in a clear, logical 
+and flowing manner. 
+
+### Aim {#aim}
+
+- [ ] Provides a summary of:
+    - [ ] the aim,
+
+### Methods {#methods}
+
+- [ ] Provides a summary of:
+    - [ ] methods and 
 
 ### The Dataset {#dataset}
 
-These are the variables monitored in participants:
 
--   Sex
--   Period/Time
--   Age
--   Systolic Blood Pressure
--   Diastolic Blood Pressure
--   Use of Anti-Hypertensive Medication at time of examination
--   Currently Smoking
--   Number of cigarettes per day
--   Attained Education Level
--   Cholesterol
--   Body Mass Index
--   Glucose Level
--   Diabetes
--   Heart Rate
--   Prevalent Angina Pectoris
--   Prevalent Coronary Heart Disease
--   Prevalent Myocardial Infarction
--   Prevalent Stroke
--   Prevalent Hypertensive
+## Experimental Design and Workflow
+
+- [ ] Is decisive on the appropriateness of the methods and analysis used in the paper and 
+providing insight into plausible improvements of the experimental design and workflow.
 
 ## Results {#results}
 
-To generate the following plots, the libraries:`ggplot2` and `dplyr`, were used for data visualization and manipulation.
+- [ ] Inspires dissemination of information and findings.
 
-```{r libraries, results='hide', message=FALSE, warning=FALSE, collapse=FALSE, echo = TRUE}
-# Libraries used
-library(ggplot2)
-library(dplyr)
-```
+- [ ] Attracts and continually promotes emotional and intellectual engagement.
 
-### Age vs. Systolic Blood Pressure by Prevalent Angina Pectoris
+- [ ] Graphics are clear and reasonable replicas or improvements of the originals.
 
-The raw data was filtered to include only living individuals, ensuring the analysis focused on the relationship between systolic blood pressure (`SYSBP`) and age. Additionally, rows with missing values in the `ANGINA` column were removed to ensure data integrity.
+- [ ] Insightful and intuitive report of analytical methods for target readership.
 
-The median age and systolic blood pressure was also calculated for each angina group.
+## Discussion
 
-```{r pre-processing-1, fig.cap = "Pre-processing data", fig.label="fig:pre-processing-1", results='hide', message=FALSE, warning=FALSE, collapse=TRUE, echo = TRUE}
-filtered_data <- frmgham_data[frmgham_data$DEATH == "Alive", ]
+- [ ] The success or difficulties in reproducing their results are used to critique the 
+findings and conclusions of the manuscript.
 
-filtered_data <- filtered_data[!is.na(filtered_data$ANGINA), ]
+- [ ] Is decisive on the appropriateness of the methods and analysis used in the paper and 
+providing insight into plausible improvements of the experimental design and workflow.
 
-centers <- filtered_data %>%
-  group_by(ANGINA) %>%
-  summarise(center_AGE = median(AGE, na.rm = TRUE), 
-            center_SYSBP = median(SYSBP, na.rm = TRUE))
-```
+- [ ] Comment on the appropriateness of the methods and analysis used in the paper.
 
-Figure \@ref(fig:fig1) below illustrates the distribution of systolic blood pressure across different ages, separated by the prevalence of Angina Pectoris. The density heatmap highlights regions with a higher concentration of individuals, with warmer colors representing higher densities. Additionally, the median age and systolic blood pressure for each group are marked to provide a central tendency reference.
-
-```{r fig1, fig.cap = "A topographical plot displaying the ranges of systolic blood pressure against age separated by the prevalence of Angina Pectoris with points showing the median age and systolic blood pressure", fig.label="fig:topographical", results='hide', message=FALSE, warning=FALSE, echo = TRUE}
-ggplot(filtered_data, aes(x = AGE, y = SYSBP)) +
-  labs(title = "Age vs. Systolic Blood Pressure by Prevalent Angina Pectoris",
-       x = "Age (Years)",
-       y = "Systolic Blood Pressure (mmHg)",
-       color = "Prevalent Angina",
-       caption = "*Probability Density per Year per mmHg") +
-  stat_density2d(
-    aes(x=AGE, y=SYSBP, fill = ..level..), 
-    size=0, 
-    bins=9, 
-    data=as.data.frame(filtered_data), 
-    geom="polygon") +
-  facet_grid(col = vars(ANGINA)) +
-  scale_fill_gradient(low = "yellow", high = "red", name = "Density Level*",
-                      limits = c(0, 0.001)) + 
-  geom_point(data = centers, 
-             aes(x = center_AGE, 
-                 y = center_SYSBP, 
-                 color = ANGINA), 
-             size = 3, shape = 21, 
-             fill = "black") +
-  geom_text(data = centers, 
-            aes(x = center_AGE, 
-                y = center_SYSBP, 
-                label = paste0("(", center_AGE, ", ", center_SYSBP, ")")), 
-            vjust = -1) 
-  
-```
-
-From the Figure \@ref(fig:fig1), we observe that individuals without disease tend to have lower systolic blood pressure on average compared to those with prevalent angina. This suggests a potential association between higher blood pressure and the presence of angina. Furthermore, the disease-free group exhibits a more concentrated distribution at lower values, implying that their blood pressure levels are relatively stable and fall within a narrower range. In contrast, individuals with prevalent angina show a more dispersed distribution, suggesting greater variability in blood pressure, which may be influenced by other factors.
-
-### Percentage of Angina Cases Over Time
-
-The dataset was further processed to group and summarize angina cases by period, angina status, and sex. The number of angina cases in each category was counted, and the proportion of cases within each period was calculated as a percentage. To account for variability in the data, the standard error (SE) of the percentage was computed using the binomial proportion formula. Additionally, 95% confidence intervals (CI) were derived to provide statistical bounds for the angina prevalence estimates.
-
-```{r pre-processing-2, fig.cap = "A vi ", fig.label="fig:pre-processing-2", results='hide', message=FALSE, warning=FALSE, collapse=TRUE, echo = TRUE}
-filtered_data <- filtered_data %>%
-  group_by(PERIOD, ANGINA, SEX) %>%
-  summarise(Angina_Cases = n(), .groups = 'drop') %>%
-  # Calculate the percentage within each PERIOD
-  group_by(PERIOD) %>%
-  mutate(Angina_Percentage = Angina_Cases / sum(Angina_Cases) * 100,
-         SE = sqrt((Angina_Percentage * (100 - Angina_Percentage)) / Angina_Cases)) %>%
-  ungroup()
-
-filtered_data <- filtered_data %>%
-  mutate(CI_Lower = Angina_Percentage - (1.96 * SE),
-         CI_Upper = Angina_Percentage + (1.96 * SE))
-```
-
-Figure \@ref(fig:fig2) below presents the percentage distribution of angina cases over time, stratified by gender and angina prevalence. The bars represent the proportion of individuals classified as either free of disease or having prevalent angina, with separate groupings for males and females. Error bars indicate the 95% confidence intervals for each percentage estimate, providing a measure of variability in the data.
-
-```{r fig2, fig.cap = "A bar plot showing percentage of angina cases in males and females over period", fig.label="fig:facet-bar-plot", results='hide', message=FALSE, warning=FALSE, echo = TRUE}
-ggplot(filtered_data, aes(x = ANGINA, y= Angina_Percentage, fill = as.factor(SEX))) +
-  geom_bar(stat = "identity", position = "dodge") +
-  geom_text(aes(label = paste0(round(Angina_Percentage, 1), "%")), 
-          position = position_dodge(width = 0.9), 
-          vjust = -1,
-          hjust = 0.25) +
-  geom_errorbar(aes(ymin = Angina_Percentage - SE, ymax = Angina_Percentage + SE), 
-              position = position_dodge(width = 0.9), width = 0.2) +
-  labs(title = "Percentage of Angina Cases Over Time",
-       y = "Percentage of Angina Cases (%)",
-       fill = "Gender") +
-  facet_grid(~ PERIOD) +
-  theme(axis.text.x = element_text(angle = 30, hjust = 1)) +
-  scale_y_continuous(limits = c(0, 60), expand = c(0, 0.05))
-```
-
-From Figure \@ref(fig:fig2), a consistent pattern is observed, where a higher proportion of females are free of disease compared to males. This could reflect known biological and behavioral differences, such as hormonal protection in premenopausal women or variations in lifestyle. Despite this, a greater percentage of females have prevalent angina compared to males. While the overall prevalence of angina remains low in both groups, this finding suggests that among those who develop the disease, females may be more susceptible to its occurrence or diagnosis. The error bars in the figure show minimal fluctuations across time periods, suggesting that the observed gender differences in disease prevalence are not due to random variations but represent consistent trends over time.
-
-> ⚠ Note
-> 
-> The data is collected only from individuals in Framingham, America, which may limit the generalization of the findings to other populations.
+- [ ] Outline the success or difficulties you had reproducing their results.
 
 ## Conclusion {#conclusion}
 
-In conclusion, key differences in systolic blood pressure distribution and disease prevalence across groups are highlighted. Individuals free of disease tend to have lower and more stable blood pressure, while those with prevalent angina show greater variability. Additionally, females generally have a higher proportion of disease-free individuals but a slightly greater prevalence of angina compared to males. These findings emphasize the need for targeted interventions to manage blood pressure and address gender-specific risks in cardiovascular health. It is important to note that the data is collected solely from individuals in Framingham, America, which may limit its applicability to other populations. Future research should explore genetic, behavioral, and environmental factors contributing to these patterns to refine prevention and treatment strategies.
+- [ ] Provides a summary of:
+    - [ ] results of the paper.
+    
+## References
+
+- [ ] Citation, spelling and grammar correct and keeps to word limit.
