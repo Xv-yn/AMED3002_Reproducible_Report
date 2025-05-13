@@ -26,15 +26,42 @@ knitr::opts_chunk$set(echo = TRUE)
 - [ ] Purpose and information accurate, concise and discerning and organised in a clear, logical 
 and flowing manner. 
 
+Modern cancer diagnostics increasingly rely on molecular profiling, yet tissue biopsies remain invasive, complex, and often impractical in clinical settings. Liquid biopsies—minimally invasive blood-based diagnostics—have emerged as a promising alternative, but many current approaches, such as plasma DNA and circulating tumor cells, face challenges in specificity and early detection.
+
+In a seminal 2015 study published in *Cancer Cell*, Best et al. reported that RNA sequencing of TEPs could accurately distinguish between healthy individuals and patients with various cancer types—including breast, lung, colorectal, and glioblastoma—using a support vector machine (SVM) trained on differentially expressed genes. Their multiclass classifier reportedly achieved high accuracy across cohorts, suggesting TEPs could serve as a powerful tool for non-invasive diagnostics.
+
+We attempted to reproduce the findings of Best et al. (2015), who proposed a method using RNA-seq data from tumor-educated platelets (TEPs) for multiclass cancer diagnostics. The study claimed high diagnostic accuracy using SVM-based classification of platelet RNA profiles across six tumor types. 
+
+Our objective was to assess the reproducibility of their method using the supplemental datasets and experimental procedures provided, and determine if similar diagnostic performance could be achieved.
+
 ### Aim {#aim}
 
 - [ ] Provides a summary of:
     - [ ] the aim,
 
+Our aim was to verify whether RNA signatures from TEPs could accurately distinguish between different cancer types and healthy individuals, using the same SVM and differential expression approaches described in the paper. 
+
+Specifically, we aimed to:
+
+- Replicate the feature selection and classification pipeline using the provided gene expression datasets.
+- Assess the model’s accuracy, sensitivity, and specificity on validation cohorts.
+- Identify any methodological gaps or reproducibility issues encountered during replication.
+
 ### Methods {#methods}
 
 - [ ] Provides a summary of:
     - [ ] methods and 
+
+We closely followed the methods outlined in the supplementary information:
+
+- **Sample and Dataset Access**: We used supplemental files `mmc2.xlsx` to `mmc8.xlsx` containing processed gene expression data and classifier features.
+- **SVM Classification**: We replicated the LOOCV strategy for binary and multiclass classification using scikit-learn in Python. Feature gene sets from the tables were used to train SVM classifiers with default linear kernels.
+- **Validation**: Using the same partitioning as the study (175 training, 108 validation), we measured performance metrics and compared them to the reported results.
+- **Statistical Analysis**: Differential expression was assessed using edgeR-style filtering and thresholding on LogCPM values where applicable. Some thresholds had to be inferred due to lack of raw pipeline scripts.
+
+> - **Data Preprocessing**: Raw fastq files were not available. Genes on the Y chromosome and mitochondrial DNA were excluded.
+> - **NOTE**: Missing raw data limited reproducibility. SVM kernel parameters and hyperparameters were not fully disclosed, requiring us to experiment with parameter tuning.
+
 
 ### The Dataset {#dataset}
 
