@@ -26,22 +26,28 @@ knitr::opts_chunk$set(echo = TRUE)
 - [ ] Purpose and information accurate, concise and discerning and organised in a clear, logical 
 and flowing manner. 
 
-Modern cancer diagnostics increasingly rely on molecular profiling, yet tissue biopsies remain invasive, complex, and often impractical in clinical settings. Liquid biopsies—minimally invasive blood-based diagnostics—have emerged as a promising alternative, but many current approaches, such as plasma DNA and circulating tumor cells, face challenges in specificity and early detection.
+Modern cancer diagnostics increasingly rely on molecular profiling (Akbani et al., 2014, Golub et al., 1999, Han et al., 2014, Hoadley et al., 2014, Kandoth et al., 2013, Ramaswamy et al., 2001, Su et al., 2001), yet tissue biopsies remain invasive, complex, and often impractical in clinical settings, especially considering the varying conditions of cancer patients in practice. 
 
-In a seminal 2015 study published in *Cancer Cell*, Best et al. reported that RNA sequencing of TEPs could accurately distinguish between healthy individuals and patients with various cancer types—including breast, lung, colorectal, and glioblastoma—using a support vector machine (SVM) trained on differentially expressed genes. Their multiclass classifier reportedly achieved high accuracy across cohorts, suggesting TEPs could serve as a powerful tool for non-invasive diagnostics.
+Many of the sampling methods that can be used for cancer diagnosis are limited by a variety of factors, including the tumor micro-environment, the stage of cancer regarding it's dissemination and metastasis in the body, the position of the cancer relative to vital organs, and other factors that can impede progress in diagnosis. One suggested method to overcome these limitations (Alix-Panabières et al., 2012, Crowley et al., 2013, Haber and Velculescu, 2014) and continue testing for diagnosis is to use a **blood based liquid biopsy**, which uses blood as a medium for specimen testing.
 
-We attempted to reproduce the findings of Best et al. (2015), who proposed a method using RNA-seq data from tumor-educated platelets (TEPs) for multiclass cancer diagnostics. The study claimed high diagnostic accuracy using SVM-based classification of platelet RNA profiles across six tumor types. 
+Many of the components of blood that come into contact with the tumor can be affected by the presence of cancer, which can lead to certain changes in the biology of those components and the resultant changes in biomarkers, that can be used to identify characteristics regarding the cancer. The added benefit of using this method over other diagnostic methods comes is the lack of invasion into the tumor or it's micro-environment, as this blood based liquid biopsies require blood samples that can be taken at a distance from the tumor site while still revealing information regarding the cancer. 
 
-Our objective was to assess the reproducibility of their method using the supplemental datasets and experimental procedures provided, and determine if similar diagnostic performance could be achieved.
+This blood based liquid biopsy not only includes the analysis of blood components, plasma, DNA, disseminated tumor cells, but also includes **tumor educated platelets (TEPs)** that come about as a result of the interaction between blood platelets, which are the second most abundant cell type in peripheral blood, and the tumor cells as they transfer tumor associated biomolecules between eachother. This process causes changes in the blood platelets, at which point they can be referred to as TEPs. The interaction induces  the sequestration of the tumor associated biomolecules (Klement et al., 2009, Kuznetsov et al., 2012, McAllister and Weinberg, 2014, Nilsson et al., 2011, Quail and Joyce, 2013), as well as an increased tolerance to external stimuli that can induce specific splicing of pre-MRNAs in circulating platelets. TEPs are also vulnerable to the induction of mRNA splicing events caused by signals produced by the tumor itself (Power et al., 2009, Rowley et al., 2011, Schubert et al., 2014), which gives these TEPs a very characteristic and dynamic **mRNA profile.** (Calverley et al., 2010, McAllister and Weinberg, 2014, Nilsson et al., 2011)
+
+In a seminal 2015 study published in *Cancer Cell*, Best et al. reported that RNA sequencing of TEPs could accurately distinguish between healthy individuals and patients with various cancer types—including breast, lung, colorectal, and glioblastoma—using a **support vector machine (SVM)** trained on differentially expressed genes. The multiclass classifier reportedly achieved high accuracy across cohorts, suggesting TEPs could serve as a powerful tool for **non-invasive diagnostics**, that can help to more precisely identify a cancer subtype and allow for targeted treatment according to known characteristics of the subtype. (Calverley et al., 2010, Nilsson et al., 2011)
+
+This study attempted to reproduce the findings of Best et al. (2011), who proposed a method using RNA-seq data from tumor-educated platelets (TEPs) for multiclass cancer diagnostics. The study claimed high diagnostic accuracy using SVM-based classification of platelet RNA profiles across six tumor types. 
+
+The objective of this study was to assess the reproducibility of their method using the supplemental datasets and experimental procedures provided, and determine if similar diagnostic performance could be achieved.
 
 ### Aim {#aim}
 
 - [ ] Provides a summary of:
     - [ ] the aim,
 
-Our aim was to verify whether RNA signatures from TEPs could accurately distinguish between different cancer types and healthy individuals, using the same SVM and differential expression approaches described in the paper. 
+The aim was to verify whether RNA signatures from TEPs could accurately distinguish between different cancer types and healthy individuals, using the same SVM and differential expression approaches described in the paper. 
 
-Specifically, we aimed to:
+Specifically, this study aimed to:
 
 - Replicate the feature selection and classification pipeline using the provided gene expression datasets.
 - Assess the model’s accuracy, sensitivity, and specificity on validation cohorts.
@@ -52,22 +58,26 @@ Specifically, we aimed to:
 - [ ] Provides a summary of:
     - [ ] methods and 
     
-Blood samples from both healthy donors (n=55) and cancer patients (n=228) were collected, and the types of cancer in the patients was noted, including glioblastoma, non-small cell lung cancer, colorectal cancer, pancreatic adenocarcinoma, breast carcionma and hepatobiliary carcinoma, as well as any associated mutations in their cancers. The current or past treatment(s) for each cancer patient were also noted, including surgery, chemotherapy and radiotherapy.
+#### Sample Collection and Patient Information
+Peripheral blood samples were collected from healthy donors (n = 55) and cancer patients (n = 228) across multiple cancer types, including glioblastoma, non-small cell lung cancer (NSCLC), colorectal cancer, pancreatic adenocarcinoma, breast carcinoma, and hepatobiliary carcinoma. For each patient, associated cancer-specific mutations and prior or ongoing treatments—including surgery, chemotherapy, and radiotherapy—were recorded.
 
-In blood samples, platelets and plasma were isolated from the whole blood via centrifugation. The cells and aggregates were removed by centrifugation at room temperature for 20 min at 120g,resulting in platelet-rich plasma. The platelets were isolated from the platelet-rich plasma by centrifugation at room temperature for 20 min at 360g, after which the plasma was centrifuged at 5000 rpm for 10 min and frozen. Plasma DNA and RNA were isolated, amplified and sequenced via amplicon-seq.
+Whole blood was drawn into purple-cap BD Vacutainer tubes containing EDTA as an anticoagulant. Platelets and plasma were isolated using a two-step centrifugation protocol (Best et al., 2015). Initially, whole blood was centrifuged at room temperature for 20 minutes at 120 × g to obtain platelet-rich plasma (PRP). Subsequently, PRP was centrifuged at 360 × g for 20 minutes to isolate the platelet pellet. Plasma was further centrifuged at 5000 rpm for 10 minutes to remove residual cellular debris and stored at −80°C for later nucleic acid extraction.
 
-The isolated platelets were converted into cDNA, and mutant hotspots of genetic material were amplified using high fidelity enzymes, producing amplicons of circular DNA in a format readable by bioanalysis machinery and software. Reading of this circular DNA was then mapped to a human reference genome, finally producing data ready for analysis via graphical and statistical means.
-Samples with low predictive strength were excluded, as well as samples that did not produce "significant" readings with genetic analysis machinery after RNA amplification.
+#### RNA Isolation and Library Preparation
+Total RNA was extracted from the isolated platelets. Complementary DNA (cDNA) synthesis and amplification were performed using the SMARTer Ultra Low RNA Kit for Illumina Sequencing v1 (Clontech). Amplification targeted known mutation hotspots using high-fidelity polymerases to produce circular DNA amplicons suitable for next-generation sequencing. Quality and quantity of cDNA were assessed using the Agilent Bioanalyzer 2100 system with the DNA High Sensitivity chip. Sequencing libraries were prepared according to the manufacturer’s protocol and sequenced on an Illumina platform. Resulting reads were aligned to the human reference genome to generate expression matrices for downstream analysis.
 
-We closely followed the methods outlined in the supplementary information:
+#### Data Access and Preprocessing
+This study adhered closely to the procedures described in the supplementary materials of Best et al. (2015). Processed gene expression data and classifier gene sets were obtained from supplemental files (`mmc2.xlsx` to `mmc8.xlsx`). Genes encoded on the Y chromosome and mitochondrial DNA were excluded from the analysis to minimize sex-based bias.
 
-- **Sample and Dataset Access**: We used supplemental files `mmc2.xlsx` to `mmc8.xlsx` containing processed gene expression data and classifier features.
-- **SVM Classification**: We replicated the LOOCV strategy for binary and multiclass classification using scikit-learn in Python. Feature gene sets from the tables were used to train SVM classifiers with default linear kernels.
-- **Validation**: Using the same partitioning as the study (175 training, 108 validation), we measured performance metrics and compared them to the reported results.
-- **Statistical Analysis**: Differential expression was assessed using edgeR-style filtering and thresholding on LogCPM values where applicable. Some thresholds had to be inferred due to lack of raw pipeline scripts.
+Due to the unavailability of raw sequencing files (e.g., FASTQ), the preprocessing pipeline could not be fully reconstructed. Consequently, certain parameters such as thresholding criteria for expression filtering were inferred based on log-transformed counts per million (logCPM) distributions and reported summary statistics.
 
-> - **Data Preprocessing**: Raw fastq files were not available. Genes on the Y chromosome and mitochondrial DNA were excluded.
-> - **NOTE**: Missing raw data limited reproducibility. SVM kernel parameters and hyperparameters were not fully disclosed, requiring us to experiment with parameter tuning.
+#### Classification and Validation
+Support vector machine (SVM) models were implemented in Python using the scikit-learn library. A leave-one-out cross-validation (LOOCV) approach was used for both binary and multiclass classification tasks, replicating the methodology described in the original publication. Linear kernel SVMs were trained using feature gene sets specified in the supplementary tables. Where hyperparameter values (e.g., C, gamma) were not disclosed, parameter tuning was performed empirically to optimize classification performance.
+
+Validation was conducted using the original partitioning schema from Best et al. (2015), with 175 samples allocated to training and 108 to the validation cohort. Classifier performance was evaluated in terms of accuracy, sensitivity, and specificity.
+
+#### Statistical Analysis
+Differential gene expression was assessed using a filtering strategy analogous to that employed in edgeR, based on logCPM thresholds to retain sufficiently expressed genes. Due to limited methodological transparency in the original publication, some statistical thresholds and preprocessing decisions were approximated based on available data and description.
 
 
 ### The Dataset {#dataset}
@@ -78,11 +88,13 @@ We closely followed the methods outlined in the supplementary information:
 - [ ] Is decisive on the appropriateness of the methods and analysis used in the paper and 
 providing insight into plausible improvements of the experimental design and workflow.
 
-This experiment was designed around minimal patient contact and invasion, which mimics the goals for the conclusion of the study, and conducted tests that would accurately confront their aim, providing data that is truly relevant to their cause. 
+The methodology employed by Best et al. (2015) is largely appropriate for investigating tumor-educated platelets (TEPs) as a non-invasive biomarker source for cancer diagnostics. Their design demonstrates ethical and practical considerations by prioritizing minimal patient burden through the use of blood-based liquid biopsies rather than tissue sampling. This aligns well with the clinical utility they propose—routine, low-risk diagnostics that can be applied even in vulnerable patient populations. Furthermore, the use of RNA-seq and a support vector machine (SVM) classifier for multiclass cancer prediction is methodologically sound and reflects a thoughtful integration of transcriptomic data with machine learning for diagnostic applications.
 
-Improvements to be made would be to include all data, as researchers cannot be entirely sure of all biomarkers. In the method, some data is omitted due to a lack of predictive strength or samples with low readings after RNA amplification, which while unlikely, may be hiding some rarer biomarkers that could be considered in cancer diagnoses. 
+However, the experimental design could be improved by addressing the potential bias introduced by excluding samples with low RNA yield or reduced predictive value. While this exclusion criterion strengthens statistical power and model robustness, it also introduces the risk of discarding biologically informative outliers, including rare transcripts or low-abundance biomarkers that could prove relevant, particularly in early-stage or heterogeneous cancers. Incorporating a secondary analysis pipeline that includes these marginal samples could help uncover additional diagnostic signals.
 
-The exclusion of genes encoded on the mitochondrial DNA and the Y chromosome is excusable, as this would introduce gendered bias into the study, but it stands to reason that this data should be studied separately.
+Moreover, the decision to omit genes located on the Y chromosome and mitochondrial genome is justifiable given the goal of minimizing gender-associated confounding variables. Nonetheless, such exclusion limits the scope of discovery. These genomic regions may harbor cancer-relevant signals that, while gender-specific, could enhance stratified diagnostics if analyzed in sex-separated cohorts. A future iteration of the study would benefit from a parallel analysis including these regions under stratified conditions.
+
+Overall, the experimental workflow is replicable and conceptually robust, but opportunities exist to broaden its inclusivity and interpretive depth without compromising clinical relevance.
 
 ## Results {#results}
 
