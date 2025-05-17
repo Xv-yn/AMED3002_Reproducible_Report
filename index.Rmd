@@ -80,9 +80,6 @@ Validation was conducted using the original partitioning schema from Best et al.
 Differential gene expression was assessed using a filtering strategy analogous to that employed in edgeR, based on logCPM thresholds to retain sufficiently expressed genes. Due to limited methodological transparency in the original publication, some statistical thresholds and preprocessing decisions were approximated based on available data and description.
 
 
-### The Dataset {#dataset}
-
-
 ## Experimental Design and Workflow
 
 - [ ] Is decisive on the appropriateness of the methods and analysis used in the paper and 
@@ -186,3 +183,41 @@ providing insight into plausible improvements of the experimental design and wor
 ## References
 
 - [ ] Citation, spelling and grammar correct and keeps to word limit.
+
+Akbani et al. (2014), [A pan-cancer proteomic perspective on The Cancer Genome Atlas. Nat. Commun.](https://pmc.ncbi.nlm.nih.gov/articles/PMC4109726/)
+
+Golub et al. (1999), [Molecular classification of cancer: class discovery and class prediction by gene expression monitoring. Science.](https://pubmed.ncbi.nlm.nih.gov/10521349/)
+
+Han et al. (2014), [The Pan-Cancer analysis of pseudogene expression reveals biologically and clinically relevant tumour subtypes. Nat. Commun.](https://pmc.ncbi.nlm.nih.gov/articles/PMC4339277/)
+
+Hoadley et al. (2014),[Cancer Genome Atlas Research Network Multiplatform analysis of 12 cancer types reveals molecular classification within and across tissues of origin. Cell.](https://pmc.ncbi.nlm.nih.gov/articles/PMC4152462/)
+
+Kandoth et al. (2013), [Mutational landscape and significance across 12 major cancer types. Nature.](https://pmc.ncbi.nlm.nih.gov/articles/PMC3927368/)
+
+Ramaswamy et al. (2001), [Multiclass cancer diagnosis using tumor gene expression signatures. Proc. Natl. Acad. Sci.](https://pmc.ncbi.nlm.nih.gov/articles/PMC64998/)
+
+Su et al. (2001), [Molecular classification of human carcinomas by use of gene expression signatures. Cancer Res.](https://pubmed.ncbi.nlm.nih.gov/11606367/)
+
+Alix-Panabières et al. (2012), [Challenges in circulating tumour cell research. Nat. Rev. Cancer.](https://pubmed.ncbi.nlm.nih.gov/25154812/)
+
+Crowley et al. (2013), [Liquid biopsy: monitoring cancer-genetics in the blood. Nat. Rev. Clin. Oncol.](https://pubmed.ncbi.nlm.nih.gov/23836314/)
+
+Haber and Velculescu (2014), [Blood-based analyses of cancer: circulating tumor cells and circulating tumor DNA. Cancer Discov. ](https://pmc.ncbi.nlm.nih.gov/articles/PMC4433544/)
+
+Klement et al. (2009), [Platelets actively sequester angiogenesis regulators. Blood.](https://pmc.ncbi.nlm.nih.gov/articles/PMC2661866/)
+
+Kuznetsov et al. (2012), [Identification of luminal breast cancers that establish a tumor-supportive macroenvironment defined by proangiogenic platelets and bone marrow-derived cells. Cancer Discov.](https://pmc.ncbi.nlm.nih.gov/articles/PMC3517696/)
+
+McAllister and Weinberg (2014), [The tumour-induced systemic environment as a critical regulator of cancer progression and metastasis. Nat. Cell Biol.](https://pmc.ncbi.nlm.nih.gov/articles/PMC6220424/)
+
+Quail and Joyce (2013), [Microenvironmental regulation of tumor progression and metastasis. Nat. Med.](https://pmc.ncbi.nlm.nih.gov/articles/PMC3954707/)
+
+Power et al. (2009), [High-throughput proteomics detection of novel splice isoforms in human platelets. PLoS ONE. ](https://pmc.ncbi.nlm.nih.gov/articles/PMC2654914/)
+
+Rowley et al. (2011), [Genome-wide RNA-seq analysis of human and mouse platelet transcriptomes. Blood.](https://pmc.ncbi.nlm.nih.gov/articles/PMC3193274/)
+
+Schubert et al. 2014, [A tour through the transcriptional landscape of platelets. Blood.](https://pmc.ncbi.nlm.nih.gov/articles/PMC4110657/)
+
+Calverley et al. (2010), [Significant downregulation of platelet gene expression in metastatic lung cancer. Clin. Transl. Sci.](https://pmc.ncbi.nlm.nih.gov/articles/PMC3427741/)
+
+Best et al. (2011) [Blood platelets contain tumor-derived RNA biomarkers](https://pmc.ncbi.nlm.nih.gov/articles/PMC4644263/)
