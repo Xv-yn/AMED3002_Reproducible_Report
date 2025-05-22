@@ -36,7 +36,9 @@ This blood based liquid biopsy not only includes the analysis of blood component
 
 In a seminal 2015 study published in *Cancer Cell*, Best et al. reported that RNA sequencing of TEPs could accurately distinguish between healthy individuals and patients with various cancer types—including breast, lung, colorectal, and glioblastoma—using a **support vector machine (SVM)** trained on differentially expressed genes. The multiclass classifier reportedly achieved high accuracy across cohorts, suggesting TEPs could serve as a powerful tool for **non-invasive diagnostics**, that can help to more precisely identify a cancer subtype and allow for targeted treatment according to known characteristics of the subtype. (Calverley et al., 2010, Nilsson et al., 2011)
 
-This study attempted to reproduce the findings of Best et al. (2011), who proposed a method using RNA-seq data from tumor-educated platelets (TEPs) for multiclass cancer diagnostics. The study claimed high diagnostic accuracy using SVM-based classification of platelet RNA profiles across six tumor types. 
+This study attempted to reproduce the findings of Best et al. (2011), who proposed a method using RNA-seq data from tumor-educated platelets (TEPs) for multiclass cancer diagnostics. With blood samples from both healthy donors and cancer patients consisting of "one drop of blood", the report was able to isolate platelets, perform mRNA amplification and mRNA-Seq analysis to obtain data about TEPs to be used in their research.
+
+Their report aimed to determine if the characteristics that differentiate blood platelets to TEPs can be useful in cancer diagnostics for both localised and metastasized cancer patients, and also aimed to produce and test classification models for different cancer types using their observed data. The report claimed high diagnostic accuracy using SVM-based classification of platelet RNA profiles across six tumor types.
 
 The objective of this study was to assess the reproducibility of their method using the supplemental datasets and experimental procedures provided, and determine if similar diagnostic performance could be achieved.
 
