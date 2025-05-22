@@ -105,6 +105,56 @@ Overall, the experimental workflow is replicable and conceptually robust, but op
 
 - [ ] Insightful and intuitive report of analytical methods for target readership.
 
+
+```{r, warning=FALSE, message=FALSE}
+library(ggplot2)
+library(readxl)
+
+df <- read_excel("mmc3.xlsx")
+
+df$logCPM_Healthy <- df$logCPM - df$logFC
+df$logCPM_Cancer <- df$logCPM
+
+df$Expression <- "Unchanged"
+df$Expression[df$logFC > 0] <- "Increased"
+df$Expression[df$logFC < -1] <- "Decreased"   # This number is anyhow pick
+
+df$Expression <- factor(df$Expression, levels = c("Increased", "Decreased", "Unchanged"))
+
+cor_result <- cor.test(df$logCPM_Healthy, df$logCPM_Cancer, method = "pearson")
+
+r_value <- cor_result$estimate
+p_value <- cor_result$p.value
+
+ggplot(df, aes(x = logCPM_Healthy, y = logCPM_Cancer, color = Expression)) +
+  geom_point(size = 1, alpha = 0.7) +
+  scale_color_manual(values = c("Increased" = "red", "Decreased" = "blue", "Unchanged" = "grey")) +
+  labs(
+    title = paste0("Total TEP mRNAs (n = ", nrow(df), ")"),
+    x = expression("Mean Log"[2]*" CPM Healthy"),
+    y = expression("Mean Log"[2]*" CPM Cancer"),
+    color = ""
+  ) +
+  annotate("text", x = 2.5, y = 15.5, label = paste0("Increased (n = ", sum(df$Expression == "Increased"), ")"), color = "red") +
+  annotate("text", x = 2.5, y = 14.5, label = paste0("Decreased (n = ", sum(df$Expression == "Decreased"), ")"), color = "blue") +
+  annotate("text", x = 11, y = 1.5, label = paste0("r = ", round(r_value, 2))) +
+  annotate("text", x = 11, y = 0.5, label = paste0("p = ", format.pval(p_value, digits = 2, eps = 1e-16))) + 
+  theme_bw(base_size = 12) +
+  theme(
+    panel.grid = element_blank(),
+    axis.title = element_text(size = 12, face = "bold"),
+    plot.title = element_text(hjust = 1, face = "bold"),
+    legend.position = "none"
+  )
+```
+
+
+
+
+
+
+
+
 Graphs Present:
 
 - Table summary of Patient Characteristics
