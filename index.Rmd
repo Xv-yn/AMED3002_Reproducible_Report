@@ -196,8 +196,79 @@ legend("topright",
 ```
 
 
+```{r, warning=FALSE, message=FALSE}
+library(limma)
+library(dplyr)
+library(readxl)
+
+data_path <- "GSE68086_TEP_data_matrix.txt"
+expr <- read.table(data_path, header = TRUE, sep = "\t", row.names = 1, check.names = FALSE)
+```
+
+```{r, warning=FALSE, message=FALSE}
+file_path <- "mmc6.xlsx"
+sheet_names <- excel_sheets(file_path)
+sheet_dfs <- list()
+
+for (sheet in sheet_names) {
+  sheet_df <- read_excel(file_path, sheet = sheet)
+  sheet_dfs[[sheet]] <- sheet_df
+}
 
 
+filtered_expr_list <- list()
+
+for (sheet in names(sheet_dfs)) {
+  df <- sheet_dfs[[sheet]]
+
+  common_genes <- df$`Ensembl gene ID`
+  expr_filtered <- expr[rownames(expr) %in% common_genes, , drop = FALSE]
+
+  filtered_expr_list[[sheet]] <- expr_filtered
+}
+```
+
+
+```{r, warning=FALSE, message=FALSE}
+for (sheet in names(filtered_expr_list)) {
+  expr_filtered <- filtered_expr_list[[sheet]]
+  
+  expVal <- as.matrix(expr_filtered)
+
+  samples <- colnames(expVal)
+  healthy_samples <- grepl("^HD-|^Control-", samples)
+  
+  pheno <- data.frame(
+    Sample = samples,
+    survClass = ifelse(healthy_samples, "Healthy", "Cancer")
+  )
+  
+  columnColour <- pheno$survClass
+  columnColour[columnColour == "Cancer"] <- "red"
+  columnColour[columnColour == "Healthy"] <- "grey"
+  
+  useColumns <- !is.na(columnColour)
+  
+  gene_var <- apply(expVal, 1, var)
+  top_genes <- names(sort(gene_var, decreasing = TRUE))
+  
+  coolmap(expVal[top_genes, useColumns],
+          ColSideColors = columnColour[useColumns],
+          labRow = NA,
+          labCol = NA,
+          main = paste("Heatmap -", sheet))
+  
+  par(xpd = TRUE)
+  legend("topright",
+         legend = c("Cancer", "Healthy"),
+         fill = c("red", "grey"),
+         border = NA,
+         bty = "n",
+         title = "Group",
+         inset = c(-0.065, 0),
+         cex = 0.7)
+}
+```
 
 Graphs Present:
 
