@@ -151,11 +151,15 @@ ggplot(df, aes(x = logCPM_Healthy, y = logCPM_Cancer, color = Expression)) +
 
 ```{r}
 library(limma)
+library(dplyr)
 
 data_path <- "GSE68086_TEP_data_matrix.txt"
 expr <- read.table(data_path, header = TRUE, sep = "\t", row.names = 1, check.names = FALSE)
 
-expVal <- as.matrix(expr)
+common_genes <- df$`Ensembl gene ID`
+expr_filtered <- expr[rownames(expr) %in% common_genes, ]
+
+expVal <- as.matrix(expr_filtered)
 
 samples <- colnames(expVal)
 
@@ -172,7 +176,7 @@ columnColour[columnColour == "Healthy"] <- "white"
 
 useColumns <- !is.na(columnColour)
 
-top100Var <- names(sort(-apply(expVal, 1, var)))[1:100] # just for reference
+top100Var <- names(sort(-apply(expVal, 1, var)))
 
 coolmap(expVal[top100Var, useColumns],
         ColSideColors = columnColour[useColumns],
