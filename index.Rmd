@@ -177,6 +177,9 @@ columnColour[columnColour == "Healthy"] <- "grey"
 useColumns <- !is.na(columnColour)
 
 var <- names(sort(-apply(expVal, 1, var)))
+
+gene_vars <- apply(expVal, 1, var)
+top_genes <- names(sort(gene_vars, decreasing = TRUE))[1:100]
 ```
 
 ```{r, warning=FALSE, message=FALSE}
@@ -268,6 +271,66 @@ for (sheet in names(filtered_expr_list)) {
          inset = c(-0.065, 0),
          cex = 0.7)
 }
+```
+
+```{r}
+library(e1071)
+library(caret)
+library(dplyr)
+
+X <- t(expVal[top_genes, useColumns])
+
+y <- factor(pheno$survClass[useColumns])
+
+
+set.seed(123)
+train_idx <- createDataPartition(y, p = 0.7, list = FALSE)
+X_train <- X[train_idx, ]
+y_train <- y[train_idx]
+X_test <- X[-train_idx, ]
+y_test <- y[-train_idx]
+
+
+svm_model <- svm(X_train, y_train, kernel = "linear", scale = TRUE)
+
+y_pred <- predict(svm_model, X_test)
+
+conf <- confusionMatrix(y_pred, y_test)
+print(conf)
+```
+
+```{r}
+library(e1071)
+library(caret)
+library(pheatmap)
+library(dplyr)
+
+selected_samples <- grepl("CRC", colnames(expVal)) |
+                    grepl("PAAD", colnames(expVal)) |
+                    grepl("HBC", colnames(expVal))
+
+X <- t(expVal[top_genes, selected_samples])
+
+y <- ifelse(grepl("CRC", colnames(expVal)), "CRC",
+     ifelse(grepl("PAAD", colnames(expVal)), "PAAD",
+     ifelse(grepl("HBC", colnames(expVal)), "HBC", NA)))
+
+y <- factor(y, levels = c("CRC", "PAAD", "HBC"))
+
+
+set.seed(123)
+# train_idx <- createDataPartition(y, p = 0.7, list = FALSE)
+# X_train <- X[train_idx, ]
+# y_train <- y[train_idx]
+# X_test <- X[-train_idx, ]
+# y_test <- y[-train_idx]
+# 
+# svm_model2 <- svm(X_train, y_train, kernel = "linear", scale = TRUE)
+# 
+# y_pred <- predict(svm_model, X_test)
+# 
+# conf <- confusionMatrix(y_pred, y_test)
+# print(conf)
 ```
 
 Graphs Present:
