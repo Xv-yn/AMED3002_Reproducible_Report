@@ -1745,8 +1745,8 @@ columnColour[columnColour == &quot;Healthy&quot;] &lt;- &quot;grey&quot;
 
 useColumns &lt;- !is.na(columnColour)
 
-top100Var &lt;- names(sort(-apply(expVal, 1, var)))</code></pre>
-<pre class="r"><code>coolmap(expVal[top100Var, useColumns],
+var &lt;- names(sort(-apply(expVal, 1, var)))</code></pre>
+<pre class="r"><code>coolmap(expVal[var, useColumns],
         ColSideColors = columnColour[useColumns],
         labRow = NA,
         labCol = NA)

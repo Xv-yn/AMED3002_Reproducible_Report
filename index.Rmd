@@ -176,11 +176,11 @@ columnColour[columnColour == "Healthy"] <- "grey"
 
 useColumns <- !is.na(columnColour)
 
-top100Var <- names(sort(-apply(expVal, 1, var)))
+var <- names(sort(-apply(expVal, 1, var)))
 ```
 
 ```{r, warning=FALSE, message=FALSE}
-coolmap(expVal[top100Var, useColumns],
+coolmap(expVal[var, useColumns],
         ColSideColors = columnColour[useColumns],
         labRow = NA,
         labCol = NA)
