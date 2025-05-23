@@ -149,7 +149,35 @@ ggplot(df, aes(x = logCPM_Healthy, y = logCPM_Cancer, color = Expression)) +
 ```
 
 
+```{r}
+library(limma)
 
+data_path <- "GSE68086_TEP_data_matrix.txt"
+expr <- read.table(data_path, header = TRUE, sep = "\t", row.names = 1, check.names = FALSE)
+
+expVal <- as.matrix(expr)
+
+samples <- colnames(expVal)
+
+healthy_samples <- grepl("^HD-|^Control-", samples)
+
+pheno <- data.frame(
+  Sample = samples,
+  survClass = ifelse(healthy_samples, "Healthy", "Cancer")
+)
+
+columnColour <- pheno$survClass
+columnColour[columnColour == "Cancer"] <- "red"
+columnColour[columnColour == "Healthy"] <- "white"
+
+useColumns <- !is.na(columnColour)
+
+top100Var <- names(sort(-apply(expVal, 1, var)))[1:100] # just for reference
+
+coolmap(expVal[top100Var, useColumns],
+        ColSideColors = columnColour[useColumns],
+        main = "Top 100 Variable Genes")
+```
 
 
 
