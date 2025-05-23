@@ -116,8 +116,8 @@ df$logCPM_Healthy <- df$logCPM - df$logFC
 df$logCPM_Cancer <- df$logCPM
 
 df$Expression <- "Unchanged"
-df$Expression[df$logFC > 0] <- "Increased"
-df$Expression[df$logFC < -1] <- "Decreased"   # This number is anyhow pick
+df$Expression[df$logFC > 0] <- "Increased"   # This number is NOT random, it was from the mmc3 file
+df$Expression[df$logFC < 0] <- "Decreased"   # This number is anyhow pick
 
 df$Expression <- factor(df$Expression, levels = c("Increased", "Decreased", "Unchanged"))
 
