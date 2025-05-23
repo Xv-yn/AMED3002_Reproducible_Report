@@ -149,7 +149,7 @@ ggplot(df, aes(x = logCPM_Healthy, y = logCPM_Cancer, color = Expression)) +
 ```
 
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 library(limma)
 library(dplyr)
 
@@ -172,15 +172,27 @@ pheno <- data.frame(
 
 columnColour <- pheno$survClass
 columnColour[columnColour == "Cancer"] <- "red"
-columnColour[columnColour == "Healthy"] <- "white"
+columnColour[columnColour == "Healthy"] <- "grey"
 
 useColumns <- !is.na(columnColour)
 
 top100Var <- names(sort(-apply(expVal, 1, var)))
+```
 
+```{r, warning=FALSE, message=FALSE}
 coolmap(expVal[top100Var, useColumns],
         ColSideColors = columnColour[useColumns],
-        main = "Top 100 Variable Genes")
+        labRow = NA,
+        labCol = NA)
+par(xpd = TRUE)
+legend("topright",
+       legend = c("Cancer", "Healthy"),
+       fill = c("red", "grey"),
+       border = NA,
+       bty = "n",
+       title = "Group",
+       inset = c(-0.065, 0),
+       cex = 0.7)
 ```
 
 
