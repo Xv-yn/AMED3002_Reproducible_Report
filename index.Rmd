@@ -305,32 +305,35 @@ library(caret)
 library(pheatmap)
 library(dplyr)
 
-selected_samples <- grepl("CRC", colnames(expVal)) |
-                    grepl("PAAD", colnames(expVal)) |
-                    grepl("HBC", colnames(expVal))
+cancer_labels <- c("CRC", "PAAD", "HBC")
 
-X <- t(expVal[top_genes, selected_samples])
+pheno2 <- data.frame(
+  Sample = samples,
+  survClass = cancer_labels
+)
 
-y <- ifelse(grepl("CRC", colnames(expVal)), "CRC",
-     ifelse(grepl("PAAD", colnames(expVal)), "PAAD",
-     ifelse(grepl("HBC", colnames(expVal)), "HBC", NA)))
+useLabels <- !is.na(pheno2$survClass)
 
-y <- factor(y, levels = c("CRC", "PAAD", "HBC"))
+X <- t(expVal[top_genes, useLabels])
 
+y <- factor(pheno2$survClass[useLabels])
 
 set.seed(123)
-# train_idx <- createDataPartition(y, p = 0.7, list = FALSE)
-# X_train <- X[train_idx, ]
-# y_train <- y[train_idx]
-# X_test <- X[-train_idx, ]
-# y_test <- y[-train_idx]
-# 
-# svm_model2 <- svm(X_train, y_train, kernel = "linear", scale = TRUE)
-# 
-# y_pred <- predict(svm_model, X_test)
-# 
-# conf <- confusionMatrix(y_pred, y_test)
-# print(conf)
+train_idx <- createDataPartition(y, p = 0.7, list = FALSE)
+X_train <- X[train_idx, ]
+y_train <- y[train_idx]
+X_test <- X[-train_idx, ]
+y_test <- y[-train_idx]
+
+y_train <- as.factor(y_train)
+y_test <- as.factor(y_test)
+
+svm_model2 <- svm(X_train, y_train, kernel = "linear", scale = TRUE)
+
+y_pred <- predict(svm_model2, X_test)
+
+conf <- confusionMatrix(y_pred, y_test)
+print(conf)
 ```
 
 Graphs Present:
