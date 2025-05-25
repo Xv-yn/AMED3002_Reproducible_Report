@@ -278,20 +278,86 @@ library(e1071)
 library(caret)
 library(dplyr)
 
-X <- t(expVal[top_genes, useColumns])
+mmc3 <- read_excel("mmc3.xlsx")
 
-y <- factor(pheno$survClass[useColumns])
+data_path <- "GSE68086_TEP_data_matrix.txt"
+sample_data <- read.table(data_path, header = TRUE, sep = "\t", row.names = 1, check.names = FALSE)
 
+gene_list <- as.character(mmc3$`Ensembl gene ID`)
+sample_data_filtered <- sample_data[rownames(sample_data) %in% gene_list, ]
+
+column_labels <- ifelse(grepl("^HD-|^Control-", colnames(sample_data)), "Healthy", "Cancer")
+
+sample_data_r_labelled <- rbind(sample_data_filtered, label = column_labels)
+```
+
+```{r}
+sample_data_t <- as.data.frame(t(sample_data_r_labelled))
+
+labels <- as.factor(sample_data_t$label)
+
+features <- sample_data_t[ , !(colnames(sample_data_t) %in% "label")]
+
+features <- as.data.frame(lapply(features, as.numeric))
 
 set.seed(123)
-train_idx <- createDataPartition(y, p = 0.7, list = FALSE)
-X_train <- X[train_idx, ]
-y_train <- y[train_idx]
-X_test <- X[-train_idx, ]
-y_test <- y[-train_idx]
+train_idx <- createDataPartition(labels, p = 0.7, list = FALSE)
+
+X_train <- features[train_idx, ]
+y_train <- labels[train_idx]
+X_test <- features[-train_idx, ]
+y_test <- labels[-train_idx]
+
+svm_model <- svm(x = X_train, y = y_train, kernel = "linear", probability = TRUE)
+
+y_pred <- predict(svm_model, X_test)
+
+conf <- confusionMatrix(y_pred, y_test)
+print(conf)
+```
 
 
-svm_model <- svm(X_train, y_train, kernel = "linear", scale = TRUE)
+
+
+```{r}
+library(e1071)
+library(caret)
+library(dplyr)
+
+data_path <- "GSE68086_TEP_data_matrix.txt"
+sample_data <- read.table(data_path, header = TRUE, sep = "\t", row.names = 1, check.names = FALSE)
+
+file_path <- "mmc6.xlsx"
+sheet_names <- excel_sheets(file_path)
+sheet_dfs <- list()
+
+for (sheet in sheet_names) {
+  sheet_df <- read_excel(file_path, sheet = sheet)
+  sheet_dfs[[sheet]] <- sheet_df
+  
+  matched <- rownames(sample_data) %in% sheet_df$`Ensembl gene ID`
+  sample_data$label[matched] <- sheet
+}
+```
+
+```{r}
+sample_data$label[is.na(sample_data$label)] <- "Healthy"
+sample_data_clean <- sample_data[sample_data$label %in% c("CRC", "PAAD", "HBC"), ]
+
+features <- sample_data_clean[, !(colnames(sample_data_clean) %in% "label")]
+labels <- as.factor(sample_data_clean$label)
+
+features <- as.data.frame(lapply(features, as.numeric))
+
+set.seed(123)
+train_idx <- createDataPartition(labels, p = 0.7, list = FALSE)
+
+X_train <- features[train_idx, ]
+y_train <- labels[train_idx]
+X_test <- features[-train_idx, ]
+y_test <- labels[-train_idx]
+
+svm_model <- svm(x = X_train, y = y_train, kernel = "linear", probability = TRUE)
 
 y_pred <- predict(svm_model, X_test)
 
@@ -300,41 +366,30 @@ print(conf)
 ```
 
 ```{r}
-library(e1071)
-library(caret)
-library(pheatmap)
-library(dplyr)
+sample_data$label[is.na(sample_data$label)] <- "Healthy"
+sample_data_clean <- sample_data
 
-cancer_labels <- c("CRC", "PAAD", "HBC")
+features <- sample_data_clean[, !(colnames(sample_data_clean) %in% "label")]
+labels <- as.factor(sample_data_clean$label)
 
-pheno2 <- data.frame(
-  Sample = samples,
-  survClass = cancer_labels
-)
-
-useLabels <- !is.na(pheno2$survClass)
-
-X <- t(expVal[top_genes, useLabels])
-
-y <- factor(pheno2$survClass[useLabels])
+features <- as.data.frame(lapply(features, as.numeric))
 
 set.seed(123)
-train_idx <- createDataPartition(y, p = 0.7, list = FALSE)
-X_train <- X[train_idx, ]
-y_train <- y[train_idx]
-X_test <- X[-train_idx, ]
-y_test <- y[-train_idx]
+train_idx <- createDataPartition(labels, p = 0.7, list = FALSE)
 
-y_train <- as.factor(y_train)
-y_test <- as.factor(y_test)
+X_train <- features[train_idx, ]
+y_train <- labels[train_idx]
+X_test <- features[-train_idx, ]
+y_test <- labels[-train_idx]
 
-svm_model2 <- svm(X_train, y_train, kernel = "linear", scale = TRUE)
+svm_model <- svm(x = X_train, y = y_train, kernel = "linear", probability = TRUE)
 
-y_pred <- predict(svm_model2, X_test)
+y_pred <- predict(svm_model, X_test)
 
 conf <- confusionMatrix(y_pred, y_test)
 print(conf)
 ```
+
 
 Graphs Present:
 
