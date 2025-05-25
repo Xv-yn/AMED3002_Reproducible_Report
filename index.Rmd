@@ -280,7 +280,7 @@ library(dplyr)
 
 mmc3 <- read_excel("mmc3.xlsx")
 
-data_path <- "GSE68086_TEP_data_matrix.txt"
+data_path <- "sample_data.txt"
 sample_data <- read.table(data_path, header = TRUE, sep = "\t", row.names = 1, check.names = FALSE)
 
 gene_list <- as.character(mmc3$`Ensembl gene ID`)
@@ -323,6 +323,7 @@ print(conf)
 library(e1071)
 library(caret)
 library(dplyr)
+library(readxl)
 
 data_path <- "GSE68086_TEP_data_matrix.txt"
 sample_data <- read.table(data_path, header = TRUE, sep = "\t", row.names = 1, check.names = FALSE)
@@ -334,18 +335,27 @@ sheet_dfs <- list()
 for (sheet in sheet_names) {
   sheet_df <- read_excel(file_path, sheet = sheet)
   sheet_dfs[[sheet]] <- sheet_df
-  
-  matched <- rownames(sample_data) %in% sheet_df$`Ensembl gene ID`
-  sample_data$label[matched] <- sheet
 }
 ```
 
 ```{r}
-sample_data$label[is.na(sample_data$label)] <- "Healthy"
-sample_data_clean <- sample_data[sample_data$label %in% c("CRC", "PAAD", "HBC"), ]
+column_labels <- case_when(
+  grepl("^CRC-|^Liver-|^Chol-", colnames(sample_data))     ~ "CRC",
+  grepl("Pancr", colnames(sample_data))    ~ "PAAD",
+  grepl("Breast", colnames(sample_data))  ~ "HBC",
+  TRUE                                    ~ NA
+)
 
-features <- sample_data_clean[, !(colnames(sample_data_clean) %in% "label")]
-labels <- as.factor(sample_data_clean$label)
+sample_data_3 <- rbind(sample_data, label = column_labels)
+sample_data_3 <- sample_data_3[, colSums(is.na(sample_data_3)) == 0]
+
+sample_data_3_t <- as.data.frame(t(sample_data_3))
+
+nzv <- nearZeroVar(sample_data_3_t, saveMetrics = TRUE)
+sample_data_3_t <- sample_data_3_t[, !nzv$nzv] 
+
+features <- sample_data_3_t[, !(colnames(sample_data_3_t) %in% "label")]
+labels <- as.factor(sample_data_3_t$label)
 
 features <- as.data.frame(lapply(features, as.numeric))
 
@@ -366,11 +376,27 @@ print(conf)
 ```
 
 ```{r}
-sample_data$label[is.na(sample_data$label)] <- "Healthy"
-sample_data_clean <- sample_data
+column_labels <- case_when(
+  grepl("HD", colnames(sample_data)) ~ "Healthy",
+  grepl("GBM", colnames(sample_data))     ~ "GBM",
+  grepl("^NSCLC-|^Lung-", colnames(sample_data))   ~ "NSCLC",
+  grepl("^CRC-|^Liver-|^Chol-", colnames(sample_data))     ~ "CRC",
+  grepl("Pancr", colnames(sample_data))    ~ "PAAD",
+  grepl("Breast", colnames(sample_data))  ~ "HBC",
+  grepl("BrCa", colnames(sample_data))    ~ "BrCa",
+  TRUE                                    ~ NA
+)
 
-features <- sample_data_clean[, !(colnames(sample_data_clean) %in% "label")]
-labels <- as.factor(sample_data_clean$label)
+sample_data_3 <- rbind(sample_data, label = column_labels)
+sample_data_3 <- sample_data_3[, colSums(is.na(sample_data_3)) == 0]
+
+sample_data_3_t <- as.data.frame(t(sample_data_3))
+
+nzv <- nearZeroVar(sample_data_3_t, saveMetrics = TRUE)
+sample_data_3_t <- sample_data_3_t[, !nzv$nzv] 
+
+features <- sample_data_3_t[, !(colnames(sample_data_3_t) %in% "label")]
+labels <- as.factor(sample_data_3_t$label)
 
 features <- as.data.frame(lapply(features, as.numeric))
 
