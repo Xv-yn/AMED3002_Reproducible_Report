@@ -107,26 +107,106 @@ Overall, the experimental workflow is replicable and conceptually robust, but op
 
 
 ```{r, warning=FALSE, message=FALSE}
+# find human intron-spanning genes
+library(EnsDb.Hsapiens.v86)
+edb <- EnsDb.Hsapiens.v86
+exons_by_gene_ensembl <- exonsBy(edb, by = "gene")
+# Count exons per gene
+exon_counts_ensembl <- elementNROWS(exons_by_gene_ensembl)
+# Genes with > 1 exon
+intron_spanning_genes_ensembl <- names(exon_counts_ensembl)[exon_counts_ensembl > 1]
+
+
+
+# Read in data as tibble and convert to df
+library(edgeR)
+library(readr)
+library(org.Hs.eg.db)
 library(ggplot2)
-library(readxl)
 
-df <- read_excel("mmc3.xlsx")
 
-df$logCPM_Healthy <- df$logCPM - df$logFC
-df$logCPM_Cancer <- df$logCPM
+df_all_counts = as.data.frame(readr::read_tsv("GSE68086_TEP_data_matrix.txt"))
+# set row names as gene IDs
+rownames(df_all_counts) <- df_all_counts[[1]]
+df_all_counts <- df_all_counts[,-1]
+# coerce counts to numeric
+df_all_counts[] <- lapply(df_all_counts, as.numeric)
 
+# filter out cols (samples) with IS read counts < 0.4 x 10^6
+sample_totals <- colSums(df_all_counts)  
+df_all_counts <- df_all_counts[, sample_totals > 4e5]
+
+# subset by intron-spanning
+## 57,736 --> 33,937 rows
+df_all_counts <- df_all_counts[rownames(df_all_counts) %in% intron_spanning_genes_ensembl, ]
+
+
+# filter out genes with <5 counts in all samples (none)
+## goes from 285 --> 282, should be 288 ---> 283
+keep <- rowSums(df_all_counts >= 5) > 0
+counts_filtered <- df_all_counts[keep, ]
+
+# set up groups as cancerous and noncancereous 
+group <- factor(ifelse(grepl("^HD", colnames(counts_filtered)), "Healthy", "Cancerous"))
+
+# create DGE list and calculate normalisation factors with TMM method
+dge <- DGEList(counts = counts_filtered, group = group)
+# remove y chr genes
+chr <- mapIds(org.Hs.eg.db, keys = rownames(dge), column = "CHR", keytype = "ENSEMBL", multiVals = "first")
+dge <- dge[chr != "Y" & !is.na(chr), , keep.lib.sizes = FALSE]
+dge <- calcNormFactors(dge, method = "TMM")
+
+# find logCPM and filter by genes with at least one reading of logCPM > 3 
+logCPM <- cpm(dge, log = TRUE)
+keep <- rowSums(logCPM > 3) > 0
+dge <- dge[keep, , keep.lib.sizes = FALSE]
+
+# make the design matrix, specifying which samples are in the healthy group
+design <- model.matrix(~ group)
+dge <- estimateDisp(dge, design)
+
+# find log fold changes
+fit <- glmFit(dge, design)
+lrt <- glmLRT(fit, coef = 2)  
+res <- topTags(lrt, n = Inf)$table
+
+# rownames are ENSEMBL IDs, make col 'symbol' of SYMBOL IDs
+res$symbol <- mapIds(org.Hs.eg.db, keys=rownames(res), column=c("SYMBOL"), keytype="ENSEMBL", multiVals = "first")
+
+
+
+## find logCPM between healthy and cancerous for each gene
+logCPM <- cpm(dge, log = TRUE)  # logCPM for each gene in each sample
+logCPM_healthy <- rowMeans(logCPM[, group == "Healthy"])
+logCPM_cancerous <- rowMeans(logCPM[, group == "Cancerous"])
+avg_logCPM <- data.frame(
+  ENSEMBL = rownames(logCPM),
+  logCPM_healthy = logCPM_healthy,
+  logCPM_cancerous = logCPM_cancerous
+)
+res$ENSEMBL <- rownames(res)
+res_plot <- merge(res, avg_logCPM, by = "ENSEMBL")
+
+# split into increased decreased and no significant change in expression
+df <- res
 df$Expression <- "Unchanged"
-df$Expression[df$logFC > 0] <- "Increased"   # This number is NOT random, it was from the mmc3 file
-df$Expression[df$logFC < 0] <- "Decreased"   # This number is anyhow pick
-
+df$Expression[df$logFC > 0 & df$FDR < 0.01] <- "Decreased"
+df$Expression[df$logFC < 0  & df$FDR < 0.01] <- "Increased"   
 df$Expression <- factor(df$Expression, levels = c("Increased", "Decreased", "Unchanged"))
 
-cor_result <- cor.test(df$logCPM_Healthy, df$logCPM_Cancer, method = "pearson")
+# merge df with logcpm healthy and cancerous  
+df$ENSEMBL <- rownames(df)
+df <- merge(df, avg_logCPM, by = "ENSEMBL")
 
-r_value <- cor_result$estimate
-p_value <- cor_result$p.value
+# Calculate correlation test between logCPM_healthy and logCPM_cancerous
+cor_test <- cor.test(df$logCPM_healthy, df$logCPM_cancerous)
 
-ggplot(df, aes(x = logCPM_Healthy, y = logCPM_Cancer, color = Expression)) +
+# Extract correlation coefficient and p-value
+r_value <- cor_test$estimate
+p_value <- cor_test$p.value
+
+# plot
+ggplot(df, aes(x = logCPM_healthy, y = logCPM_cancerous, color = Expression)) +
   geom_point(size = 1, alpha = 0.7) +
   scale_color_manual(values = c("Increased" = "red", "Decreased" = "blue", "Unchanged" = "grey")) +
   labs(
@@ -152,6 +232,9 @@ ggplot(df, aes(x = logCPM_Healthy, y = logCPM_Cancer, color = Expression)) +
 ```{r, warning=FALSE, message=FALSE}
 library(limma)
 library(dplyr)
+library(readxl)
+
+df <- read_excel("mmc3.xlsx")
 
 data_path <- "GSE68086_TEP_data_matrix.txt"
 expr <- read.table(data_path, header = TRUE, sep = "\t", row.names = 1, check.names = FALSE)
@@ -197,6 +280,27 @@ legend("topright",
        inset = c(-0.065, 0),
        cex = 0.7)
 ```
+
+```{r}
+gene_universe <- rownames(expVal)
+gene_list_of_interest <- df$`Ensembl gene ID`[df$`Ensembl gene ID` %in% gene_universe]
+selected_top_genes <- top_genes[top_genes %in% gene_universe]
+
+overlap <- length(intersect(selected_top_genes, gene_list_of_interest))
+only_in_list <- length(setdiff(gene_list_of_interest, selected_top_genes))
+only_in_top <- length(setdiff(selected_top_genes, gene_list_of_interest))
+neither <- length(setdiff(gene_universe, union(selected_top_genes, gene_list_of_interest)))
+
+contingency_table <- matrix(c(overlap, only_in_list, only_in_top, neither), nrow = 2)
+colnames(contingency_table) <- c("In List", "Not in List")
+rownames(contingency_table) <- c("Top Genes", "Not Top Genes")
+
+fisher_result <- fisher.test(contingency_table)
+
+print(contingency_table)
+print(fisher_result)
+```
+
 
 
 ```{r, warning=FALSE, message=FALSE}
@@ -253,9 +357,25 @@ for (sheet in names(filtered_expr_list)) {
   useColumns <- !is.na(columnColour)
   
   gene_var <- apply(expVal, 1, var)
-  top_genes <- names(sort(gene_var, decreasing = TRUE))
   
-  coolmap(expVal[top_genes, useColumns],
+  group <- factor(pheno$survClass)
+  design <- model.matrix(~ 0 + group)
+  colnames(design) <- levels(group)
+  
+  fit <- lmFit(expVal, design)
+  contrast.matrix <- makeContrasts(Cancer - Healthy, levels = design)
+  fit2 <- contrasts.fit(fit, contrast.matrix)
+  fit2 <- eBayes(fit2)
+  results <- topTable(fit2, number = Inf, adjust.method = "fdr")
+  
+  # Select DEGs: FDR < 0.05
+  deg_genes <- rownames(results)[results$adj.P.Val < 0.05]
+  deg_genes <- deg_genes[deg_genes %in% gene_universe]  # Ensure overlap with current matrix
+  
+  # Use DEGs as 'foreground'
+  foreground_genes <- deg_genes
+  
+  coolmap(expVal[deg_genes, useColumns],
           ColSideColors = columnColour[useColumns],
           labRow = NA,
           labCol = NA,
@@ -270,6 +390,24 @@ for (sheet in names(filtered_expr_list)) {
          title = "Group",
          inset = c(-0.065, 0),
          cex = 0.7)
+  
+  gene_universe <- rownames(expVal)
+  gene_list_of_interest <- df$`Ensembl gene ID`[df$`Ensembl gene ID` %in% gene_universe]
+  
+  # Construct contingency table
+  overlap <- length(intersect(foreground_genes, gene_list_of_interest))
+  only_in_list <- length(setdiff(gene_list_of_interest, foreground_genes))
+  only_in_foreground <- length(setdiff(foreground_genes, gene_list_of_interest))
+  neither <- length(setdiff(gene_universe, union(foreground_genes, gene_list_of_interest)))
+  
+  contingency_table <- matrix(c(overlap, only_in_list, only_in_foreground, neither), nrow = 2)
+  colnames(contingency_table) <- c("In List", "Not in List")
+  rownames(contingency_table) <- c("DEG", "Not DEG")
+  
+  fisher_result <- fisher.test(contingency_table)
+  
+  print(contingency_table)
+  print(fisher_result)
 }
 ```
 
@@ -280,7 +418,7 @@ library(dplyr)
 
 mmc3 <- read_excel("mmc3.xlsx")
 
-data_path <- "sample_data.txt"
+data_path <- "GSE68086_TEP_data_matrix.txt"
 sample_data <- read.table(data_path, header = TRUE, sep = "\t", row.names = 1, check.names = FALSE)
 
 gene_list <- as.character(mmc3$`Ensembl gene ID`)
@@ -325,7 +463,7 @@ library(caret)
 library(dplyr)
 library(readxl)
 
-data_path <- "GSE68086_TEP_data_matrix.txt"
+data_path <- "sample_data.txt"
 sample_data <- read.table(data_path, header = TRUE, sep = "\t", row.names = 1, check.names = FALSE)
 
 file_path <- "mmc6.xlsx"
