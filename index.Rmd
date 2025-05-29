@@ -30,30 +30,32 @@ Modern cancer diagnostics increasingly rely on molecular profiling (Akbani et al
 
 Many of the sampling methods that can be used for cancer diagnosis are limited by a variety of factors, including the tumor micro-environment, the stage of cancer regarding it's dissemination and metastasis in the body, the position of the cancer relative to vital organs, and other factors that can impede progress in diagnosis. One suggested method to overcome these limitations (Alix-Panabières et al., 2012, Crowley et al., 2013, Haber and Velculescu, 2014) and continue testing for diagnosis is to use a **blood based liquid biopsy**, which uses blood as a medium for specimen testing.
 
-Many of the components of blood that come into contact with the tumor can be affected by the presence of cancer, which can lead to certain changes in the biology of those components and the resultant changes in biomarkers, that can be used to identify characteristics regarding the cancer. The added benefit of using this method over other diagnostic methods comes is the lack of invasion into the tumor or it's micro-environment, as this blood based liquid biopsies require blood samples that can be taken at a distance from the tumor site while still revealing information regarding the cancer. 
+A study, "RNA-Seq of Tumor-Educated Platelets Enables Blood-Based Pan-Cancer, Multiclass, and Molecular Pathway Cancer Diagnostics" by Best et al., was conducted in 2015, which investigates whether RNA sequencing of platelets in blood samples can be used as a reliable method for cancer diagnosis across multiple cancer types.
 
-This blood based liquid biopsy not only includes the analysis of blood components, plasma, DNA, disseminated tumor cells, but also includes **tumor educated platelets (TEPs)** that come about as a result of the interaction between blood platelets, which are the second most abundant cell type in peripheral blood, and the tumor cells as they transfer tumor associated biomolecules between eachother. This process causes changes in the blood platelets, at which point they can be referred to as TEPs. The interaction induces  the sequestration of the tumor associated biomolecules (Klement et al., 2009, Kuznetsov et al., 2012, McAllister and Weinberg, 2014, Nilsson et al., 2011, Quail and Joyce, 2013), as well as an increased tolerance to external stimuli that can induce specific splicing of pre-MRNAs in circulating platelets. TEPs are also vulnerable to the induction of mRNA splicing events caused by signals produced by the tumor itself (Power et al., 2009, Rowley et al., 2011, Schubert et al., 2014), which gives these TEPs a very characteristic and dynamic **mRNA profile.** (Calverley et al., 2010, McAllister and Weinberg, 2014, Nilsson et al., 2011)
-
-In a seminal 2015 study published in *Cancer Cell*, Best et al. reported that RNA sequencing of TEPs could accurately distinguish between healthy individuals and patients with various cancer types—including breast, lung, colorectal, and glioblastoma—using a **support vector machine (SVM)** trained on differentially expressed genes. The multiclass classifier reportedly achieved high accuracy across cohorts, suggesting TEPs could serve as a powerful tool for **non-invasive diagnostics**, that can help to more precisely identify a cancer subtype and allow for targeted treatment according to known characteristics of the subtype. (Calverley et al., 2010, Nilsson et al., 2011)
-
-This study attempted to reproduce the findings of Best et al. (2011), who proposed a method using RNA-seq data from tumor-educated platelets (TEPs) for multiclass cancer diagnostics. With blood samples from both healthy donors and cancer patients consisting of "one drop of blood", the report was able to isolate platelets, perform mRNA amplification and mRNA-Seq analysis to obtain data about TEPs to be used in their research.
-
-Their report aimed to determine if the characteristics that differentiate blood platelets to TEPs can be useful in cancer diagnostics for both localised and metastasized cancer patients, and also aimed to produce and test classification models for different cancer types using their observed data. The report claimed high diagnostic accuracy using SVM-based classification of platelet RNA profiles across six tumor types.
-
-The objective of this study was to assess the reproducibility of their method using the supplemental datasets and experimental procedures provided, and determine if similar diagnostic performance could be achieved.
+The study conducted by Best et al. determined that RNA sequencing of tumor-educated platelets (TEPs) **can serve as a method for blood-based cancer diagnostics**. Tumor-educated platelets (TEPs) are blood platelets whose RNA profiles have been altered through interaction with tumor cells and the tumor microenvironment. By analyzing platelet RNA from 283 samples (228 from cancer patients and 55 from healthy donors) they achieved 96% accuracy in distinguishing cancer patients from healthy patients and 71% accuracy in identifying the primary tumor type across six cancers. 
 
 ### Aim {#aim}
 
 - [ ] Provides a summary of:
     - [ ] the aim,
 
-The aim was to verify whether RNA signatures from TEPs could accurately distinguish between different cancer types and healthy individuals, using the same SVM and differential expression approaches described in the paper. 
+This paper aims to evaluate the validity and accuracy of the study "RNA-Seq of Tumor-Educated Platelets Enables Blood-Based Pan-Cancer, Multiclass, and Molecular Pathway Cancer Diagnostics" by Best et al.
 
-Specifically, this study aimed to:
+This paper does this by attempting to:
 
-- Replicate the feature selection and classification pipeline using the provided gene expression datasets.
-- Assess the model’s accuracy, sensitivity, and specificity on validation cohorts.
-- Identify any methodological gaps or reproducibility issues encountered during replication.
+- Replicate key figures from the original study using their published data, including the
+  
+  - LogCPM expression graph,
+  
+  - heatmaps for unsupervised clustering, 
+  
+  - substituting DAVID GO enrichment with CAMERA-based gene set enrichment analysis and 
+  
+  - SVM classification performance to assess functional annotation.
+
+- Assess and compare the performance of our replicated models versus those reported by Best et al., specifically evaluating accuracy, sensitivity, and specificity across the validation cohorts.
+
+- Identify and document any methodological gaps, discrepancies, or reproducibility issues encountered during replication, providing insights into the robustness and generalizability of the original study’s findings.
 
 ### Methods {#methods}
 
@@ -61,7 +63,7 @@ Specifically, this study aimed to:
     - [ ] methods and 
     
 #### Sample Collection and Patient Information
-Peripheral blood samples were collected from healthy donors (n = 55) and cancer patients (n = 228) across multiple cancer types, including glioblastoma, non-small cell lung cancer (NSCLC), colorectal cancer, pancreatic adenocarcinoma, breast carcinoma, and hepatobiliary carcinoma. For each patient, associated cancer-specific mutations and prior or ongoing treatments—including surgery, chemotherapy, and radiotherapy—were recorded.
+In the study conducted by Best et al. (2015), peripheral blood samples were collected from healthy donors (n = 55) and cancer patients (n = 228) across multiple cancer types, including glioblastoma, non-small cell lung cancer (NSCLC), colorectal cancer, pancreatic adenocarcinoma, breast carcinoma, and hepatobiliary carcinoma. For each patient, associated cancer-specific mutations and prior or ongoing treatments—including surgery, chemotherapy, and radiotherapy—were recorded.
 
 Whole blood was drawn into purple-cap BD Vacutainer tubes containing EDTA as an anticoagulant. Platelets and plasma were isolated using a two-step centrifugation protocol (Best et al., 2015). Initially, whole blood was centrifuged at room temperature for 20 minutes at 120 × g to obtain platelet-rich plasma (PRP). Subsequently, PRP was centrifuged at 360 × g for 20 minutes to isolate the platelet pellet. Plasma was further centrifuged at 5000 rpm for 10 minutes to remove residual cellular debris and stored at −80°C for later nucleic acid extraction.
 
@@ -301,8 +303,6 @@ print(contingency_table)
 print(fisher_result)
 ```
 
-
-
 ```{r, warning=FALSE, message=FALSE}
 library(limma)
 library(dplyr)
@@ -409,6 +409,226 @@ for (sheet in names(filtered_expr_list)) {
   print(contingency_table)
   print(fisher_result)
 }
+```
+
+```{r, message=FALSE, warning=FALSE}
+# find human intron-spanning genes
+library(EnsDb.Hsapiens.v86)
+edb <- EnsDb.Hsapiens.v86
+exons_by_gene_ensembl <- exonsBy(edb, by = "gene")
+# Count exons per gene
+exon_counts_ensembl <- elementNROWS(exons_by_gene_ensembl)
+# Genes with > 1 exon
+intron_spanning_genes_ensembl <- names(exon_counts_ensembl)[exon_counts_ensembl > 1]
+
+
+
+# Read in data as tibble and convert to df
+library(edgeR)
+library(readr)
+library(org.Hs.eg.db)
+library(ggplot2)
+
+
+df_all_counts = as.data.frame(readr::read_tsv("GSE68086_TEP_data_matrix.txt"))
+# set row names as gene IDs
+rownames(df_all_counts) <- df_all_counts[[1]]
+df_all_counts <- df_all_counts[,-1]
+# coerce counts to numeric
+df_all_counts[] <- lapply(df_all_counts, as.numeric)
+
+# filter out cols (samples) with IS read counts < 0.4 x 10^6
+sample_totals <- colSums(df_all_counts)  
+df_all_counts <- df_all_counts[, sample_totals > 4e5]
+
+# subset by intron-spanning
+## 57,736 --> 33,937 rows
+df_all_counts <- df_all_counts[rownames(df_all_counts) %in% intron_spanning_genes_ensembl, ]
+
+
+# filter out genes with <5 counts in all samples (none)
+## goes from 285 --> 282, should be 288 ---> 283
+keep <- rowSums(df_all_counts >= 5) > 0
+counts_filtered <- df_all_counts[keep, ]
+
+# set up groups as cancerous and noncancereous 
+group <- factor(ifelse(grepl("^HD", colnames(counts_filtered)), "Healthy", "Cancerous"))
+
+# create DGE list and calculate normalisation factors with TMM method
+dge <- DGEList(counts = counts_filtered, group = group)
+# remove y chr genes
+chr <- mapIds(org.Hs.eg.db, keys = rownames(dge), column = "CHR", keytype = "ENSEMBL", multiVals = "first")
+dge <- dge[chr != "Y" & !is.na(chr), , keep.lib.sizes = FALSE]
+dge <- calcNormFactors(dge, method = "TMM")
+
+# find logCPM and filter by genes with at least one reading of logCPM > 3 
+logCPM <- cpm(dge, log = TRUE)
+keep <- rowSums(logCPM > 3) > 0
+dge <- dge[keep, , keep.lib.sizes = FALSE]
+
+# make the design matrix, specifying which samples are in the healthy group
+design <- model.matrix(~ group)
+dge <- estimateDisp(dge, design)
+
+# find log fold changes
+fit <- glmFit(dge, design)
+lrt <- glmLRT(fit, coef = 2)  
+res <- topTags(lrt, n = Inf)$table
+
+# rownames are ENSEMBL IDs, make col 'symbol' of SYMBOL IDs
+res$symbol <- mapIds(org.Hs.eg.db, keys=rownames(res), column=c("SYMBOL"), keytype="ENSEMBL", multiVals = "first")
+
+
+
+## find logCPM between healthy and cancerous for each gene
+logCPM <- cpm(dge, log = TRUE)  # logCPM for each gene in each sample
+logCPM_healthy <- rowMeans(logCPM[, group == "Healthy"])
+logCPM_cancerous <- rowMeans(logCPM[, group == "Cancerous"])
+avg_logCPM <- data.frame(
+  ENSEMBL = rownames(logCPM),
+  logCPM_healthy = logCPM_healthy,
+  logCPM_cancerous = logCPM_cancerous
+)
+res$ENSEMBL <- rownames(res)
+res_plot <- merge(res, avg_logCPM, by = "ENSEMBL")
+
+# split into increased decreased and no significant change in expression
+df <- res
+df$Expression <- "Unchanged"
+df$Expression[df$logFC > 0 & df$FDR < 0.01] <- "Decreased"
+df$Expression[df$logFC < 0  & df$FDR < 0.01] <- "Increased"   
+df$Expression <- factor(df$Expression, levels = c("Increased", "Decreased", "Unchanged"))
+
+# merge df with logcpm healthy and cancerous  
+df$ENSEMBL <- rownames(df)
+df <- merge(df, avg_logCPM, by = "ENSEMBL")
+
+# Calculate correlation test between logCPM_healthy and logCPM_cancerous
+cor_test <- cor.test(df$logCPM_healthy, df$logCPM_cancerous)
+
+# Extract correlation coefficient and p-value
+r_value <- cor_test$estimate
+p_value <- cor_test$p.value
+
+
+
+
+
+library(dplyr)
+library(stringr)
+library(limma)
+
+# Load MSigDB human C2 gene sets (already in .rdata format)
+load("human_c2_v5p2.rdata") # Loads 'Hs.c2'
+
+# Convert the ENTREZIDs in gene sets to ENSEMBL to match your data
+library(org.Hs.eg.db)
+gene_sets_ensembl <- lapply(Hs.c2, function(x) {
+  mapped <- mapIds(org.Hs.eg.db, keys = x, column = "ENSEMBL", keytype = "ENTREZID", multiVals = "first")
+  mapped <- na.omit(mapped)
+  unique(mapped)
+})
+
+contrast <- c(0, 1)
+
+idx <- ids2indices(gene_sets_ensembl, id = rownames(dge))
+
+cam <- camera(dge, idx, design, contrast=2, trend.var = TRUE)
+cam$pathway <- row.names(cam)
+trimmedCam <- dplyr::filter(cam, grepl("KEGG|REACTOME|BIOCARTA", pathway))
+
+# Make a copy and wrap long pathway names in a new column
+# Upgregulated
+#trimmedCam_up <- dplyr::filter(trimmedCam, Direction == "Up")
+#trimmedCam_wrapped <- trimmedCam_up
+#rownames(trimmedCam_wrapped) <- str_wrap(str_replace_all(rownames(trimmedCam_wrapped), "_", " "), width = 30)
+
+#trimmedCam_wrapped[[3]] <- sprintf("%.1e", trimmedCam_wrapped[[3]])
+
+#trimmedCam_wrapped[1:25, 1:4] %>%
+#  kbl(escape = FALSE) %>%
+#  kable_paper(full_width = TRUE) %>%
+#  column_spec(1, width = "30em", bold = TRUE) %>%
+#  column_spec(2, width = "10em", bold = TRUE) %>%
+#  column_spec(3, width = "10em", bold = TRUE) %>%
+#  column_spec(4, width = "10em", bold = TRUE) %>%
+#  column_spec(5, width = "10em", bold = TRUE)
+
+  
+
+
+trimmedCam_up <- dplyr::filter(trimmedCam, Direction == "Up")
+rownames(trimmedCam_up) <- str_wrap(
+  str_replace_all(rownames(trimmedCam_up), "_", " "),
+  width = 30
+)  
+camera_results <- trimmedCam_up[1:25,]  # replace with actual object name
+
+camera_grouped <- camera_results %>%
+  mutate(
+    Category = case_when(
+      str_detect(rownames(.), regex("TRANSLATION|RIBOSOME|PEPTIDE CHAIN|COTRANSLATIONAL|TERNARY COMPLEX|43S", ignore_case = TRUE)) ~ "Translation",
+      str_detect(rownames(.), regex("SPLICEOSOME|MRNA PROCESSING", ignore_case = TRUE)) ~ "RNA Processing",
+      str_detect(rownames(.), regex("INFLUENZA|VIRAL|TCAPOPTOSIS", ignore_case = TRUE)) ~ "Viral",
+      str_detect(rownames(.), regex("NONSENSE MEDIATED DECAY|METABOLISM OF RNA|METABOLISM OF MRNA|METABOLISM OF NON\nCODING RNA", ignore_case = TRUE)) ~ "RNA Metabolism",
+      str_detect(rownames(.), regex("3 UTR|MRNA", ignore_case = TRUE)) ~ "mRNA Regulation",
+      str_detect(rownames(.), regex("METABOLISM OF\nPROTEINS", ignore_case = TRUE)) ~ "Protein Regulation",
+      str_detect(rownames(.), regex("TCRA|IMMUNODEFICIENCY|TCYTOTOXIC|IMMUNOLOGICAL|THELPER|CD3|NO2IL12", ignore_case = TRUE)) ~ "Immune Pathways",
+      TRUE ~ "Other"
+    )
+  )
+camera_summary <- camera_grouped %>%
+  group_by(Category) %>%
+  summarise(
+    Count = n(),
+    Min_P = signif(min(PValue), 2),
+    Max_P = signif(max(PValue), 2),
+    Min_FDR = signif(min(FDR), 2),
+    Max_FDR = signif(max(FDR), 2)
+  ) %>%
+  arrange(desc(Count))
+camera_summary
+```
+
+
+```{r, message=FALSE, warning=FALSE}
+trimmedCam <- dplyr::filter(cam, grepl("KEGG|REACTOME|BIOCARTA", pathway))
+trimmedCam_down <- dplyr::filter(trimmedCam, Direction == "Down")
+rownames(trimmedCam_down) <- str_wrap(
+  str_replace_all(rownames(trimmedCam_down), "_", " "),
+  width = 30
+)  
+camera_results <- trimmedCam_down[1:25,]  # replace with actual object name
+
+camera_grouped <- camera_results %>%
+  mutate(
+    Category = case_when(
+      str_detect(rownames(.), regex("PLATELET|HEMOSTASIS|THROMBOCYTE", ignore_case = TRUE)) ~ "Platelet Activation & Hemostasis",
+      str_detect(rownames(.), regex("SMOOTH MUSCLE|MUSCLE CONTRACTION|VASCULAR", ignore_case = TRUE)) ~ "Muscle Contraction",
+      str_detect(rownames(.), regex("GLYCOLYSIS|GLUCOSE METABOLISM|PENTOSE PHOSPHATE", ignore_case = TRUE)) ~ "Energy Metabolism",
+      str_detect(rownames(.), regex("PATHOGENIC.*COLI|INFECTION|VIRAL", ignore_case = TRUE)) ~ "Pathogen Response",
+      str_detect(rownames(.), regex("FOCAL ADHESION|ACTIN CYTOSKELETON|INTEGRIN|ECM|CELL ADHESION", ignore_case = TRUE)) ~ "Cell Adhesion & Cytoskeleton",
+      str_detect(rownames(.), regex("CALPAIN|UCALPAIN|MCALPAIN", ignore_case = TRUE)) ~ "Calpain Pathways",
+      str_detect(rownames(.), regex("MAPK SIGNALING|SOS|GRB2|P130CAS", ignore_case = TRUE)) ~ "MAPK Signaling",
+      TRUE ~ "Other"
+    )
+  )
+camera_summary <- camera_grouped %>%
+  group_by(Category) %>%
+  summarise(
+    Count = n(),
+    Min_P = signif(min(PValue), 2),
+    Max_P = signif(max(PValue), 2),
+    Min_FDR = signif(min(FDR), 2),
+    Max_FDR = signif(max(FDR), 2)
+  ) %>%
+  arrange(desc(Count))
+camera_summary
+
+#other_pathways <- camera_grouped %>%
+#  dplyr::filter(Category == "Other")
+
+#print(other_pathways)
 ```
 
 ```{r}
@@ -553,7 +773,6 @@ y_pred <- predict(svm_model, X_test)
 conf <- confusionMatrix(y_pred, y_test)
 print(conf)
 ```
-
 
 Graphs Present:
 
