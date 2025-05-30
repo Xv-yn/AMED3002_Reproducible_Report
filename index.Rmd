@@ -108,6 +108,18 @@ Overall, the experimental workflow is replicable and conceptually robust, but op
 - [ ] Insightful and intuitive report of analytical methods for target readership.
 
 
+### Correlation of TEP mRNA Expression Between Cancer Patients and Healthy Donors
+
+#### Best et al.
+
+![](./log_graph.png)
+
+The scatter plot shows a strong positive correlation (r = 0.90, p < 10⁻¹⁶) between mean log₂ CPM values of TEP mRNAs in cancer patients and healthy donors. Notably, 1,453 transcripts were significantly increased and 793 were decreased in cancer, indicating distinct platelet mRNA expression patterns associated with disease status.
+
+#### Attempted Reproduction
+
+A differential expression analysis on platelet RNA-seq data was conducted by filtering for intron-spanning, autosomal genes, normalizing counts, and identifying genes with significant expression differences between cancerous and healthy samples. It calculates log-transformed CPM values, classifies genes based on fold change and FDR, and computes the correlation between average expression in healthy and cancerous groups (r and p values reported).
+
 ```{r, warning=FALSE, message=FALSE}
 # find human intron-spanning genes
 library(EnsDb.Hsapiens.v86)
@@ -118,14 +130,11 @@ exon_counts_ensembl <- elementNROWS(exons_by_gene_ensembl)
 # Genes with > 1 exon
 intron_spanning_genes_ensembl <- names(exon_counts_ensembl)[exon_counts_ensembl > 1]
 
-
-
 # Read in data as tibble and convert to df
 library(edgeR)
 library(readr)
 library(org.Hs.eg.db)
 library(ggplot2)
-
 
 df_all_counts = as.data.frame(readr::read_tsv("GSE68086_TEP_data_matrix.txt"))
 # set row names as gene IDs
@@ -174,8 +183,6 @@ res <- topTags(lrt, n = Inf)$table
 
 # rownames are ENSEMBL IDs, make col 'symbol' of SYMBOL IDs
 res$symbol <- mapIds(org.Hs.eg.db, keys=rownames(res), column=c("SYMBOL"), keytype="ENSEMBL", multiVals = "first")
-
-
 
 ## find logCPM between healthy and cancerous for each gene
 logCPM <- cpm(dge, log = TRUE)  # logCPM for each gene in each sample
@@ -230,6 +237,19 @@ ggplot(df, aes(x = logCPM_healthy, y = logCPM_cancerous, color = Expression)) +
   )
 ```
 
+The scatter plot reveals a strong positive correlation (r = 0.94, p < 1e⁻¹⁶) between mean log₂ CPM values of TEP mRNAs in healthy individuals and cancer patients. Notably, 1,810 transcripts were significantly upregulated and 3,051 were downregulated in cancer, highlighting widespread alterations in platelet RNA expression associated with malignancy.
+
+### Unsupervised Clustering of Platelet mRNA Profiles in Healthy Donors and Cancer Patients
+
+#### Best et al.
+
+![](./healthy_cancer.png)
+
+Best et al.'s heatmap displays unsupervised hierarchical clustering of platelet mRNA expression profiles from healthy donors (n = 55) and cancer patients (n = 228), revealing distinct transcriptomic patterns that segregate by disease status. The clustering is statistically significant (p < 0.0001, Fisher’s exact test), highlighting robust separation between the two groups.
+
+#### Attempted Reproduction
+
+Gene expression data was filtered to include only those present in a reference gene list, identifies the top 100 most variable genes, and creates a heatmap showing their expression patterns across healthy and cancer samples. Samples are color-coded by condition (red for cancer, grey for healthy), allowing visual inspection of transcriptomic differences between groups.
 
 ```{r, warning=FALSE, message=FALSE}
 library(limma)
@@ -265,9 +285,7 @@ var <- names(sort(-apply(expVal, 1, var)))
 
 gene_vars <- apply(expVal, 1, var)
 top_genes <- names(sort(gene_vars, decreasing = TRUE))[1:100]
-```
 
-```{r, warning=FALSE, message=FALSE}
 coolmap(expVal[var, useColumns],
         ColSideColors = columnColour[useColumns],
         labRow = NA,
@@ -283,8 +301,12 @@ legend("topright",
        cex = 0.7)
 ```
 
+The reproduced heatmap presents hierarchical clustering of the top 100 most variable platelet mRNA transcripts across cancer and healthy samples, revealing distinct expression patterns. The clear segregation of cancer (red) and healthy (grey) groups suggests consistent transcriptomic differences that may support biomarker identification or classification efforts.
+
+A 2×2 contingency table was contructed, comparing the overlap between a predefined gene list of interest and the top 100 most variable genes, relative to the entire gene universe. It then applies Fisher’s exact test to determine whether the observed overlap is greater than expected by chance, quantifying the enrichment with a p-value.
+
 ```{r}
-gene_universe <- rownames(expVal)
+gene_universe <- rownames(expr)
 gene_list_of_interest <- df$`Ensembl gene ID`[df$`Ensembl gene ID` %in% gene_universe]
 selected_top_genes <- top_genes[top_genes %in% gene_universe]
 
@@ -303,6 +325,20 @@ print(contingency_table)
 print(fisher_result)
 ```
 
+The Fisher's exact test shows a highly significant association (p-value < 2.2e-16) between the top 100 most variable genes and the genes of interest, with all top genes overlapping the list. The odds ratio is infinite, indicating a perfect enrichment of top genes within the gene list.
+
+### Unsupervised Clustering of Platelet mRNA Profiles Across Multiple Cancer Types and Healthy Donors
+
+#### Best et al.
+
+![](./6_cancer.png)
+
+This figure from Best et al. shows unsupervised clustering heatmaps of platelet mRNA profiles comparing healthy donors (HD) to patients with six cancer types: NSCLC, CRC, GBM, PAAD, BrCa, and HBC. The heatmaps demonstrate distinct transcriptomic signatures in each cancer group relative to healthy controls, with clustering patterns supporting the potential of platelet RNA profiles for pan-cancer and subtype-specific discrimination.
+
+#### Attempted Reproduction
+
+Multiple predefined gene sets from `mmc6.xlsx` were analyzed and differentially expressed genes (DEGs) between cancer and healthy platelet RNA profiles were identified. For each gene set, a heatmap of significant DEGs was generates and Fisher’s exact test was applied to assess whether that gene set is statistically enriched among DEGs (FDR < 0.05), producing both visual and statistical output per sheet.
+
 ```{r, warning=FALSE, message=FALSE}
 library(limma)
 library(dplyr)
@@ -310,9 +346,7 @@ library(readxl)
 
 data_path <- "GSE68086_TEP_data_matrix.txt"
 expr <- read.table(data_path, header = TRUE, sep = "\t", row.names = 1, check.names = FALSE)
-```
 
-```{r, warning=FALSE, message=FALSE}
 file_path <- "mmc6.xlsx"
 sheet_names <- excel_sheets(file_path)
 sheet_dfs <- list()
@@ -333,10 +367,7 @@ for (sheet in names(sheet_dfs)) {
 
   filtered_expr_list[[sheet]] <- expr_filtered
 }
-```
 
-
-```{r, warning=FALSE, message=FALSE}
 for (sheet in names(filtered_expr_list)) {
   expr_filtered <- filtered_expr_list[[sheet]]
   
@@ -411,6 +442,22 @@ for (sheet in names(filtered_expr_list)) {
 }
 ```
 
+Across six cancer types, unsupervised heatmaps revealed clear transcriptomic separation between cancer and healthy samples based on differentially expressed genes (DEGs). Fisher’s exact tests showed significant enrichment of curated gene sets among DEGs in NSCLC, CRC, GBM, PAAD, and BrCa, with the strongest enrichment observed in GBM (odds ratio = 10.4, p < 2.2e−16). HBC showed no interpretable enrichment due to zero variance in the contingency table. These results highlight the diagnostic relevance of platelet mRNA signatures in multiple cancers.
+
+### Top Gene Ontology (GO) Biological Processes Correlated with Differentially Expressed Platelet mRNAs in Cancer Patients
+
+#### Best et al.
+
+![](./down_table.png)
+
+![](./up_table.png)
+
+Gene Ontology (GO) analysis revealed that downregulated genes in cancer were primarily associated with translation, T cell immunity, and RNA processing functions. In contrast, upregulated genes were enriched in cancer-related pathways, platelet-specific processes, and responses to hypoxia and infection. Notably, some of the strongest correlations were observed for cancer-associated and platelet-related categories, highlighting distinct biological shifts in the platelet transcriptome of cancer patients.
+
+#### Attempted Reproduction
+
+The `camera` function from the limma package to perform competitive gene set enrichment analysis on platelet RNA-seq data from cancer and healthy samples. Gene counts are preprocessed, normalized, and filtered to retain intron-spanning genes with sufficient expression. Differential expression is modeled using a design matrix, and gene sets from the MSigDB C2 collection (KEGG, Reactome, BioCarta) are mapped to ENSEMBL IDs for compatibility. Enriched pathways are then grouped by biological function to summarize the most affected processes in cancer-associated platelets
+
 ```{r, message=FALSE, warning=FALSE}
 # find human intron-spanning genes
 library(EnsDb.Hsapiens.v86)
@@ -478,8 +525,6 @@ res <- topTags(lrt, n = Inf)$table
 # rownames are ENSEMBL IDs, make col 'symbol' of SYMBOL IDs
 res$symbol <- mapIds(org.Hs.eg.db, keys=rownames(res), column=c("SYMBOL"), keytype="ENSEMBL", multiVals = "first")
 
-
-
 ## find logCPM between healthy and cancerous for each gene
 logCPM <- cpm(dge, log = TRUE)  # logCPM for each gene in each sample
 logCPM_healthy <- rowMeans(logCPM[, group == "Healthy"])
@@ -511,9 +556,6 @@ r_value <- cor_test$estimate
 p_value <- cor_test$p.value
 
 
-
-
-
 library(dplyr)
 library(stringr)
 library(limma)
@@ -536,26 +578,6 @@ idx <- ids2indices(gene_sets_ensembl, id = rownames(dge))
 cam <- camera(dge, idx, design, contrast=2, trend.var = TRUE)
 cam$pathway <- row.names(cam)
 trimmedCam <- dplyr::filter(cam, grepl("KEGG|REACTOME|BIOCARTA", pathway))
-
-# Make a copy and wrap long pathway names in a new column
-# Upgregulated
-#trimmedCam_up <- dplyr::filter(trimmedCam, Direction == "Up")
-#trimmedCam_wrapped <- trimmedCam_up
-#rownames(trimmedCam_wrapped) <- str_wrap(str_replace_all(rownames(trimmedCam_wrapped), "_", " "), width = 30)
-
-#trimmedCam_wrapped[[3]] <- sprintf("%.1e", trimmedCam_wrapped[[3]])
-
-#trimmedCam_wrapped[1:25, 1:4] %>%
-#  kbl(escape = FALSE) %>%
-#  kable_paper(full_width = TRUE) %>%
-#  column_spec(1, width = "30em", bold = TRUE) %>%
-#  column_spec(2, width = "10em", bold = TRUE) %>%
-#  column_spec(3, width = "10em", bold = TRUE) %>%
-#  column_spec(4, width = "10em", bold = TRUE) %>%
-#  column_spec(5, width = "10em", bold = TRUE)
-
-  
-
 
 trimmedCam_up <- dplyr::filter(trimmedCam, Direction == "Up")
 rownames(trimmedCam_up) <- str_wrap(
@@ -631,7 +653,21 @@ camera_summary
 #print(other_pathways)
 ```
 
-```{r}
+Gene set enrichment analysis revealed that downregulated pathways in cancer patients were primarily involved in translation, RNA metabolism and processing, immune signaling, and viral responses, with many categories showing extremely low FDR values (e.g., translation FDR as low as 6.1e−40). In contrast, upregulated pathways were significantly enriched in platelet activation, muscle contraction, cell adhesion and cytoskeletal remodeling, and MAPK signaling, all consistent with platelet functional reprogramming in cancer. These results highlight distinct biological processes altered in the platelet transcriptome, reinforcing their utility in cancer detection.
+
+### SVM Classification Performance of Platelet mRNA-Based Model for Cancer Detection
+
+#### Best et al.
+
+![](./H_C_SVM.png)
+
+This confusion matrix shows that a classifier trained on 1,072 platelet-derived genes achieved 95% accuracy (p < 0.01) in distinguishing cancer patients from healthy individuals, correctly identifying 96% of cancer cases and 92% of healthy controls. The high performance underscores the diagnostic potential of platelet RNA profiles.
+
+#### Attempted Reproduction
+
+An support vector machine (SVM) classifier was built using a predefined gene list to distinguish between cancer and healthy samples based on platelet RNA expression profiles. The dataset is transposed, labeled, split into training and test sets, and normalized before training the SVM with a linear kernel. Model performance is then evaluated using a confusion matrix to assess classification accuracy.
+
+```{r, message=FALSE, warning=FALSE}
 library(e1071)
 library(caret)
 library(dplyr)
@@ -647,9 +683,7 @@ sample_data_filtered <- sample_data[rownames(sample_data) %in% gene_list, ]
 column_labels <- ifelse(grepl("^HD-|^Control-", colnames(sample_data)), "Healthy", "Cancer")
 
 sample_data_r_labelled <- rbind(sample_data_filtered, label = column_labels)
-```
 
-```{r}
 sample_data_t <- as.data.frame(t(sample_data_r_labelled))
 
 labels <- as.factor(sample_data_t$label)
@@ -674,16 +708,27 @@ conf <- confusionMatrix(y_pred, y_test)
 print(conf)
 ```
 
+The SVM classifier achieved 95.3% accuracy with a 95% confidence interval of 88.4% to 98.7%, significantly outperforming the no-information rate (p = 0.00015). It correctly classified 66 of 69 cancer samples and 15 of 16 healthy samples, demonstrating strong predictive performance.
 
+### 3-Way Multiclass Classification of Cancer Subtypes Using Platelet mRNA Signatures
 
+#### Best et al.
 
-```{r}
+![](./3_SVM.png)
+
+Best et al.'s multiclass classifier achieved 76% overall accuracy (p < 0.01) in distinguishing between CRC, PAAD, and HBC based on 390 gene features. Class-specific accuracies were highest for CRC (81%) and PAAD (71%), while HBC was correctly identified in 58% of cases, indicating moderate performance with some overlap between cancer subtypes.
+
+#### Attempted Reproduction
+
+A multiclass SVM classifier was built to distinguish between CRC, PAAD, and HBC using platelet RNA expression data. It processes multiple gene sets from `mmc6.xlsx`, labels samples based on name patterns, removes low-variance features, and splits the data into training and test sets. The model is trained with a linear kernel and evaluated using a confusion matrix to assess predictive performance.
+
+```{r, warning=FALSE, message=FALSE}
 library(e1071)
 library(caret)
 library(dplyr)
 library(readxl)
 
-data_path <- "sample_data.txt"
+data_path <- "GSE68086_TEP_data_matrix.txt"
 sample_data <- read.table(data_path, header = TRUE, sep = "\t", row.names = 1, check.names = FALSE)
 
 file_path <- "mmc6.xlsx"
@@ -694,9 +739,7 @@ for (sheet in sheet_names) {
   sheet_df <- read_excel(file_path, sheet = sheet)
   sheet_dfs[[sheet]] <- sheet_df
 }
-```
 
-```{r}
 column_labels <- case_when(
   grepl("^CRC-|^Liver-|^Chol-", colnames(sample_data))     ~ "CRC",
   grepl("Pancr", colnames(sample_data))    ~ "PAAD",
@@ -732,6 +775,20 @@ y_pred <- predict(svm_model, X_test)
 conf <- confusionMatrix(y_pred, y_test)
 print(conf)
 ```
+
+The multiclass SVM classifier achieved an accuracy of 76.5% with a 95% confidence interval of 50.1% to 93.2%, significantly outperforming the no-information rate (p = 0.0006). The model showed good classification performance across CRC, HBC, and PAAD, particularly for PAAD (5/5 correct) and HBC (5/7 correct).
+
+### 6-Way Multiclass Classification of Cancer Subtypes Using Platelet mRNA Signatures
+
+#### Best et al.
+
+![](./6_SVM.png)
+
+This seven-class classifier achieved an overall accuracy of 71% (p < 0.01) using 1,052 genes to distinguish between healthy individuals and six different cancer types. Class-specific accuracies ranged from 56% to 87%, with particularly strong performance for healthy, GBM, and NSCLC groups. The results highlight the model’s ability to differentiate multiple cancer subtypes using platelet RNA signatures, though some overlap in predictions remains.
+
+#### Attempted Reproduction
+
+A multiclass SVM classifier was built to distinguish between healthy individuals and six cancer types (GBM, NSCLC, CRC, PAAD, HBC, BrCa) using platelet RNA expression data. It labels samples based on column name patterns, removes low-variance features, transposes the data, and splits it into training and test sets. A linear-kernel SVM is then trained and evaluated using a confusion matrix to assess predictive accuracy across all classes.
 
 ```{r}
 column_labels <- case_when(
@@ -774,65 +831,8 @@ conf <- confusionMatrix(y_pred, y_test)
 print(conf)
 ```
 
-Graphs Present:
+The multiclass SVM classifier achieved an overall accuracy of 69.6% with a 95% confidence interval of 55.9% to 81.2%, significantly outperforming the no-information rate (p = 2.3e−13). It correctly identified most healthy samples (11/13) and GBM cases (9/11), demonstrating solid performance across several cancer types despite some misclassification among closely related subtypes.
 
-- Table summary of Patient Characteristics
-
-    - https://pmc.ncbi.nlm.nih.gov/articles/PMC4644263/table/tbl1/
-
-    - `mmc2.xlsx`
-
-- Table Pan-Cancer CAGE Gene Ontology
-
-    - https://pmc.ncbi.nlm.nih.gov/articles/PMC4644263/table/tbl2/
-
-    - ??? source ???
-
-- 6 Graphs
-
-    - https://pmc.ncbi.nlm.nih.gov/articles/PMC4644263/figure/fig2/
-
-    - Heatmaps of unsupervised clustering of platelet mRNA profiles of healthy donors (HD; n = 55) (red) and patients with non-small cell lung cancer (NSCLC; n = 60), colorectal cancer (CRC; n = 41), glioblastoma (GBM; n = 39), pancreatic cancer (PAAD, n = 35), breast cancer (BrCa; n = 39; female HD; n = 29), and hepatobiliary cancer (HBC; n = 14).
-
-    - ROC-curve of SVM diagnostics of healthy donors and individual tumor classes in both training (left) and validation (right) cohort. Random classifiers, indicating the classification accuracies obtained by chance, are shown in gray.
-
-    - Confusion matrix of multiclass SVM/LOOCV diagnostics of patients with CRC, PAAD, and HBC. Indicated are detection rates as compared to the actual classes in percentages.
-
-    - Confusion matrix of multiclass SVM/LOOCV diagnostics of the training cohort consisting of healthy donors (healthy) and patients with GBM, NSCLC, PAAD, CRC, BrCa, and HBC. Indicated are detection rates as compared to the actual classes in percentages.
-
-    - Confusion matrix of multiclass SVM algorithm in a validation cohort (n = 108). Indicated are sample numbers and detection rates in percentages. Genes, number of mRNAs included in training of the SVM algorithm.
-
-    - `mmc5.xlsx`, `mmc6.xlsx`, `mmc7.xlsx`
-
-- Cross tables of SVM/LOOCV diagnostics
-
-    - https://pmc.ncbi.nlm.nih.gov/articles/PMC4644263/figure/fig3/
-
-    - CRC
-
-    - PAAD
-
-    - NSCLC patients
-
-    - KRAS in the combined cohort of patients with either CRC, PAAD, NSCLC, or HBC
-
-    - EGFR 
-
-    - MET in NSCLC patients
-
-    - PIK3CA mutations
-
-    - HER2-amplification
-
-    - triple negative status in BrCa patients
-
-    - `mmc5.xlsx` and `mmc8.xlsx`
-
-- Organ-Focused TEP-Based Cancer Diagnostics
-
-    - https://pmc.ncbi.nlm.nih.gov/articles/PMC4644263/figure/fig4/
-
-    - ??? source ???
 
 ## Discussion
 
