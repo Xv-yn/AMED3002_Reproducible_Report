@@ -846,10 +846,46 @@ providing insight into plausible improvements of the experimental design and wor
 
 - [ ] Outline the success or difficulties you had reproducing their results.
 
+### Success or Difficulties in Reproduction + Critique
+
+In the reproduction of the study by Best et al., scatter plots comparing log₂ CPM values between cancer and healthy donors demonstrated a Pearson correlation coefficient of r = 0.94, which is notably higher than the originally reported r = 0.90. This strong correlation underscores the success of the data preprocessing pipeline, including normalization, filtering, and batch correction where applicable. The high agreement between expression levels suggests that the platelet transcriptome captures consistent differential expression patterns between diseased and non-diseased states.
+
+Unsupervised clustering through heatmaps of the top 100 most variable genes also confirmed the original findings. These visualizations clearly separated cancer from healthy samples, supported by statistical significance (p < 0.0001 via Fisher's exact test), reinforcing the presence of distinct platelet mRNA signatures between the two groups.
+
+Gene ontology (GO) and pathway analysis using the camera function and MSigDB C2 collections further validated the biological insights of the original work. Upregulated pathways included platelet activation, MAPK signaling, and cytoskeletal changes, while downregulated pathways were enriched for translation, immune regulation, and viral response. These results corroborated the functional conclusions reported by Best et al.
+
+In the binary classification task distinguishing cancer patients from healthy individuals, the reproduced support vector machine (SVM) classifier using the original 1072-gene platelet-derived set achieved an accuracy of 95.3%, effectively replicating the reported 95% in the original study. This high level of accuracy confirms the robustness of the method and strongly supports the claim that TEP RNA profiles are capable of distinguishing between cancer and healthy donors with remarkable precision.
+
+For cancer subtype classification, multiclass SVMs were used in both 3-way and 6-way settings. The 3-way classification among colorectal cancer (CRC), pancreatic cancer (PAAD), and hepatobiliary cancer (HBC) achieved a reproduced accuracy of 76.5%, almost identical to the reported 76%. The 6-way classification, encompassing CRC, PAAD, HBC, glioblastoma (GBM), non-small cell lung cancer (NSCLC), breast cancer (BrCa), and healthy samples, reached 69.6% accuracy compared to the original 71%. These results affirm the model’s effectiveness in distinguishing multiple cancer subtypes. However, classification performance for HBC remained slightly lower, consistent with the challenges highlighted in the original study.
+
+Despite the successful reproduction, several challenges were encountered. One major issue was label inconsistencies due to non-uniform sample naming conventions (e.g., "Pancr", "CRC-", "HD-"), which required assumptions during label reconstruction and could potentially influence class balance and model accuracy. Additionally, gene set mapping between ENSEMBL, SYMBOL, and ENTREZ identifiers led to gene loss due to non-mapped or deprecated IDs, which in turn affected the reproducibility of gene-based analyses. Another complication arose from sample size disparities; for instance, the HBC subtype included only 14 samples, making it difficult to train stable classifiers in multiclass settings, especially when data were split into training and test subsets.
+
+Overall, the reproduction of Best et al.’s study demonstrates high fidelity with the original findings and supports the feasibility of using TEP-derived mRNA signatures for cancer diagnostics, while also highlighting practical limitations related to dataset structure and annotation that must be addressed in future studies.
+
+### Appropriateness of the Methods
+
+Best et al. used a clear and effective computational pipeline. They applied intron-spanning gene filtering and TMM normalization with edgeR, which is appropriate for platelet RNA that lacks nuclear pre-mRNA and is prone to technical noise.
+
+Their analysis combined unsupervised clustering (e.g., heatmaps) for visualization and supervised classification using SVMs for diagnostic prediction. This approach balances exploratory insight with predictive performance.
+
+For biological interpretation, they used GO analysis and MSigDB gene sets to link differentially expressed genes (DEGs) to functional pathways, helping to reduce gene-level noise and highlight meaningful patterns.
+
+However, key preprocessing steps were not fully described, including exon filtering criteria, sample quality control thresholds, and how sample labels were derived. This lack of detail makes reproduction harder and increases the chance of deviations from the original analysis.
+
+### Potential Improvements
+
+Several improvements could enhance the experimental design and workflow of the study. First, providing a complete and consistent metadata file linking sample names to their respective conditions and cancer subtypes would reduce the risk of mislabeling during classification tasks and improve reproducibility. Additionally, the study appears to rely on fixed train-test splits, which can limit generalizability. Implementing k-fold cross-validation or nested cross-validation would offer more robust performance estimates and reduce variability due to specific data splits.
+
+Another critical area for improvement is batch effect assessment. The original study does not mention any correction for batch effects, which are a known confounder in RNA-seq experiments. Incorporating methods like ComBat would help control for technical variability and ensure that observed differences are biologically driven. Similarly, feature selection methods could be strengthened. Since gene importance can vary across different data splits, applying stability analysis or techniques like recursive feature elimination (RFE) would help identify consistently informative features and improve biomarker reliability.
+
+Addressing class imbalance is also important. Subtypes such as hepatobiliary cancer (HBC), which have relatively few samples, could benefit from strategies like SMOTE (Synthetic Minority Over-sampling Technique) or class-balanced downsampling to prevent biased training. Finally, while the statistical and machine learning findings are compelling, the study would be strengthened by biological validation of key results. Confirming top differentially expressed genes through methods like qPCR or Western blotting in an independent cohort would provide further confidence in the biological relevance of the findings.
+
 ## Conclusion {#conclusion}
 
 - [ ] Provides a summary of:
     - [ ] results of the paper.
+
+Best et al. (2015) present a methodologically sound and reproducible framework for using platelet RNA-seq to classify cancer states and subtypes. While minor ambiguities in data labeling and gene mapping posed challenges, the majority of findings could be successfully reproduced with high fidelity. The analytical pipeline is appropriate, but future studies would benefit from improved transparency in metadata, cross-validation protocols, and biological replication to further solidify these compelling diagnostic insights.
     
 ## References
 
