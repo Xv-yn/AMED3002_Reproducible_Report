@@ -71,18 +71,25 @@ Whole blood was drawn into purple-cap BD Vacutainer tubes containing EDTA as an 
 Total RNA was extracted from the isolated platelets. Complementary DNA (cDNA) synthesis and amplification were performed using the SMARTer Ultra Low RNA Kit for Illumina Sequencing v1 (Clontech). Amplification targeted known mutation hotspots using high-fidelity polymerases to produce circular DNA amplicons suitable for next-generation sequencing. Quality and quantity of cDNA were assessed using the Agilent Bioanalyzer 2100 system with the DNA High Sensitivity chip. Sequencing libraries were prepared according to the manufacturer’s protocol and sequenced on an Illumina platform. Resulting reads were aligned to the human reference genome to generate expression matrices for downstream analysis.
 
 #### Data Access and Preprocessing
-This study adhered closely to the procedures described in the supplementary materials of Best et al. (2015). Processed gene expression data and classifier gene sets were obtained from supplemental files (`mmc2.xlsx` to `mmc8.xlsx`). Genes encoded on the Y chromosome and mitochondrial DNA were excluded from the analysis to minimize sex-based bias.
+This study closely followed the instructions and procedures of that seen in Best et al.'s report and the provided supplementary information files that depicted their procedures and steps in closer detail. Also provided with the supplementary information was the data, inclusive of processed gene expression data and classifier gene sets in respective datasheets (`mmc2.xlsx` to `mmc8.xlsx`). It's important to note that the data analysis had excluded the Y chromosome and mitochondrial DNA to minimize sex-based bias.
 
 Due to the unavailability of raw sequencing files (e.g., FASTQ), the preprocessing pipeline could not be fully reconstructed. Consequently, certain parameters such as thresholding criteria for expression filtering were inferred based on log-transformed counts per million (logCPM) distributions and reported summary statistics.
 
-#### Classification and Validation
-Support vector machine (SVM) models were implemented in Python using the scikit-learn library. A leave-one-out cross-validation (LOOCV) approach was used for both binary and multiclass classification tasks, replicating the methodology described in the original publication. Linear kernel SVMs were trained using feature gene sets specified in the supplementary tables. Where hyperparameter values (e.g., C, gamma) were not disclosed, parameter tuning was performed empirically to optimize classification performance.
+#### Log-Transformed counts per million (logCPM) Distributions
 
-Validation was conducted using the original partitioning schema from Best et al. (2015), with 175 samples allocated to training and 108 to the validation cohort. Classifier performance was evaluated in terms of accuracy, sensitivity, and specificity.
+#### Heatmaps
+Heatmaps based on the mRNA profiles are included in Best et al.’s report (Figure 1E, Figure 2A), without instructions describing the method they used to produce these heatmaps in the report or the supplemental information. Thus, this study produces heatmaps that use the same data to feasibly reproduce the original graphs but not necessarily via the same process, as it is undisclosed by the authors of the original report. This report uses R libraries ‘limma’ and ‘dplyr’ to filter the data to include specific focal data (being separating groups by healthy donor, cancer patient and separating by cancer type) and reproduce the heatmaps from the original report. However, without specific guidance, this study does not present on the graph itself certain statistics seen in Best et al’s heatmaps, including a displayed population size and the fisher’s exact test value.
+
+#### Gene Set Enrichment Analysis
+An important distinction that separates our report from Best et al., is that we used CAMERA over DAVID-GO (Database for Annotation, Visualization, and Integrated Discovery - Gene Ontology) in our gene set enrichment analysis. CAMERA is a function of the 'limma' R package that is capable of gene set enrichment analysis, and we chose to use CAMERA over the DAVID-GO method described by Best et al., because we lacked data regarding the exact gene sets that they used in their analysis, which would've been critical in our reproduction of their results. To mitigate this discrepancy, we substituted DAVID-GO analysis with CAMERA through 'limma', and proceeded with our data analysis through the report.
+
+#### Classification and Validation
+Support vector machine (SVM) models were implemented in Python using the scikit-learn library. In the original report, Best et al. applied variations of k-fold cross-validation techniques, being leave-one-out (k=1) and 10-fold cross validation, to produce models and evaluate their accuracy for both binary and multiclass classification tasks. Linear kernel SVMs were trained using feature gene sets specified in the supplementary tables. Where hyperparameter values (e.g., C, gamma) were not disclosed, parameter tuning was performed empirically to optimize classification performance.
+
+Validation was conducted using the original partitioning schema from Best et al. (2015), with 175 samples allocated to training and 108 to the validation cohort for a total 283 samples. Classifier performance was evaluated in terms of accuracy, sensitivity, and specificity.
 
 #### Statistical Analysis
 Differential gene expression was assessed using a filtering strategy analogous to that employed in edgeR, based on logCPM thresholds to retain sufficiently expressed genes. Due to limited methodological transparency in the original publication, some statistical thresholds and preprocessing decisions were approximated based on available data and description.
-
 
 ## Experimental Design and Workflow
 
@@ -848,9 +855,9 @@ providing insight into plausible improvements of the experimental design and wor
 
 ### Success or Difficulties in Reproduction + Critique
 
-In the reproduction of the study by Best et al., scatter plots comparing log₂ CPM values between cancer and healthy donors demonstrated a Pearson correlation coefficient of r = 0.94, which is notably higher than the originally reported r = 0.90. This strong correlation underscores the success of the data preprocessing pipeline, including normalization, filtering, and batch correction where applicable. The high agreement between expression levels suggests that the platelet transcriptome captures consistent differential expression patterns between diseased and non-diseased states.
+In reproducing the study by Best et al., scatter plots comparing log₂-transformed counts per million (log₂ CPM) between cancer patients and healthy donors yielded a Pearson correlation coefficient of r = 0.94, surpassing the originally reported r = 0.90. This strong correlation reflects the effectiveness of the reconstructed preprocessing pipeline, which included normalization, expression filtering, and batch correction where feasible. Although the absence of raw sequencing files (e.g., FASTQ) limited full replication of the original pipeline, thresholding criteria were carefully inferred from logCPM distributions and summary statistics. The high degree of concordance between expression profiles indicates that, even with approximated preprocessing steps, the platelet transcriptome reliably captures differential expression patterns distinguishing diseased from non-diseased states.
 
-Unsupervised clustering through heatmaps of the top 100 most variable genes also confirmed the original findings. These visualizations clearly separated cancer from healthy samples, supported by statistical significance (p < 0.0001 via Fisher's exact test), reinforcing the presence of distinct platelet mRNA signatures between the two groups.
+Unsupervised clustering through heatmaps of the top 100 most variable genes also confirmed the original findings. These visualizations clearly separated cancer from healthy samples, supported by statistical significance (p < 0.0001 via Fisher's exact test), reinforcing the presence of distinct platelet mRNA signatures between the two groups. It is important to note that the lack of transparency regarding expression filtering thresholds and heatmap generation methods necessitated approximations, which, while effective, introduce potential reproducibility variance.
 
 Gene ontology (GO) and pathway analysis using the camera function and MSigDB C2 collections further validated the biological insights of the original work. Upregulated pathways included platelet activation, MAPK signaling, and cytoskeletal changes, while downregulated pathways were enriched for translation, immune regulation, and viral response. These results corroborated the functional conclusions reported by Best et al.
 
@@ -886,7 +893,7 @@ Addressing class imbalance is also important. Subtypes such as hepatobiliary can
     - [ ] results of the paper.
 
 Best et al. (2015) present a methodologically sound and reproducible framework for using platelet RNA-seq to classify cancer states and subtypes. While minor ambiguities in data labeling and gene mapping posed challenges, the majority of findings could be successfully reproduced with high fidelity. The analytical pipeline is appropriate, but future studies would benefit from improved transparency in metadata, cross-validation protocols, and biological replication to further solidify these compelling diagnostic insights.
-    
+
 ## References
 
 - [ ] Citation, spelling and grammar correct and keeps to word limit.
