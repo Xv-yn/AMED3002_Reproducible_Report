@@ -1,6 +1,6 @@
 ---
 title: "AMED3002 Reproducible Report"
-author: "SID: "
+author: "SID: 510 444 907, 540 704 857, 530 523 675, 530 522 999, 500 675 685"
 date: "2025-05-07"
 output: 
   rmdformats::downcute:
@@ -16,15 +16,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```
 
-
-## Abstract {#abstract}
-
-
-
 ## Introduction {#introduction}
-
-- [ ] Purpose and information accurate, concise and discerning and organised in a clear, logical 
-and flowing manner. 
 
 Modern cancer diagnostics increasingly rely on molecular profiling (Akbani et al., 2014, Golub et al., 1999, Han et al., 2014, Hoadley et al., 2014, Kandoth et al., 2013, Ramaswamy et al., 2001, Su et al., 2001), yet tissue biopsies remain invasive, complex, and often impractical in clinical settings, especially considering the varying conditions of cancer patients in practice. 
 
@@ -32,12 +24,9 @@ Many of the sampling methods that can be used for cancer diagnosis are limited b
 
 A study, "RNA-Seq of Tumor-Educated Platelets Enables Blood-Based Pan-Cancer, Multiclass, and Molecular Pathway Cancer Diagnostics" by Best et al., was conducted in 2015, which investigates whether RNA sequencing of platelets in blood samples can be used as a reliable method for cancer diagnosis across multiple cancer types.
 
-The study conducted by Best et al. determined that RNA sequencing of tumor-educated platelets (TEPs) **can serve as a method for blood-based cancer diagnostics**. Tumor-educated platelets (TEPs) are blood platelets whose RNA profiles have been altered through interaction with tumor cells and the tumor microenvironment. By analyzing platelet RNA from 283 samples (228 from cancer patients and 55 from healthy donors) they achieved 96% accuracy in distinguishing cancer patients from healthy patients and 71% accuracy in identifying the primary tumor type across six cancers. 
+The study conducted by Best et al. determined that RNA sequencing of tumor-educated platelets (TEPs) **can serve as a method for blood-based cancer diagnostics**. Tumor-educated platelets (TEPs) are blood platelets whose RNA profiles have been altered through interaction with tumor cells and the tumor microenvironment. By analyzing platelet RNA from 283 samples (228 from cancer patients and 55 from healthy donors), a 96% accuracy was achieved in distinguishing cancer patients from healthy patients and 71% accuracy in identifying the primary tumor type across six cancers. 
 
 ### Aim {#aim}
-
-- [ ] Provides a summary of:
-    - [ ] the aim,
 
 This paper aims to evaluate the validity and accuracy of the study "RNA-Seq of Tumor-Educated Platelets Enables Blood-Based Pan-Cancer, Multiclass, and Molecular Pathway Cancer Diagnostics" by Best et al.
 
@@ -47,7 +36,7 @@ This paper does this by attempting to:
   
   - LogCPM expression graph,
   
-  - heatmaps for unsupervised clustering, 
+  - heatmaps with unsupervised clustering, 
   
   - substituting DAVID GO enrichment with CAMERA-based gene set enrichment analysis and 
   
@@ -58,41 +47,42 @@ This paper does this by attempting to:
 - Identify and document any methodological gaps, discrepancies, or reproducibility issues encountered during replication, providing insights into the robustness and generalizability of the original study’s findings.
 
 ### Methods {#methods}
-
-- [ ] Provides a summary of:
-    - [ ] methods and 
     
 #### Sample Collection and Patient Information
+
 In the study conducted by Best et al. (2015), peripheral blood samples were collected from healthy donors (n = 55) and cancer patients (n = 228) across multiple cancer types, including glioblastoma, non-small cell lung cancer (NSCLC), colorectal cancer, pancreatic adenocarcinoma, breast carcinoma, and hepatobiliary carcinoma. For each patient, associated cancer-specific mutations and prior or ongoing treatments—including surgery, chemotherapy, and radiotherapy—were recorded.
 
-Whole blood was drawn into purple-cap BD Vacutainer tubes containing EDTA as an anticoagulant. Platelets and plasma were isolated using a two-step centrifugation protocol (Best et al., 2015). Initially, whole blood was centrifuged at room temperature for 20 minutes at 120 × g to obtain platelet-rich plasma (PRP). Subsequently, PRP was centrifuged at 360 × g for 20 minutes to isolate the platelet pellet. Plasma was further centrifuged at 5000 rpm for 10 minutes to remove residual cellular debris and stored at −80°C for later nucleic acid extraction.
+Whole blood was drawn into purple-cap BD Vacutainer tubes containing ethylenediaminetetraacetic acid (EDTA) as an anticoagulant. Platelets and plasma were isolated using a two-step centrifugation protocol (Best et al., 2015). Initially, whole blood was centrifuged at room temperature for 20 minutes at 120 × g to obtain platelet-rich plasma (PRP). Subsequently, PRP was centrifuged at 360 × g for 20 minutes to isolate the platelet pellet. Plasma was further centrifuged at 5000 rpm for 10 minutes to remove residual cellular debris and stored at −80°C for later nucleic acid extraction.
 
 #### RNA Isolation and Library Preparation
+
 Total RNA was extracted from the isolated platelets. Complementary DNA (cDNA) synthesis and amplification were performed using the SMARTer Ultra Low RNA Kit for Illumina Sequencing v1 (Clontech). Amplification targeted known mutation hotspots using high-fidelity polymerases to produce circular DNA amplicons suitable for next-generation sequencing. Quality and quantity of cDNA were assessed using the Agilent Bioanalyzer 2100 system with the DNA High Sensitivity chip. Sequencing libraries were prepared according to the manufacturer’s protocol and sequenced on an Illumina platform. Resulting reads were aligned to the human reference genome to generate expression matrices for downstream analysis.
 
 #### Data Access and Preprocessing
+
 This study closely followed the instructions and procedures of that seen in Best et al.'s report and the provided supplementary information files that depicted their procedures and steps in closer detail. Also provided with the supplementary information was the data, inclusive of processed gene expression data and classifier gene sets in respective datasheets (`mmc2.xlsx` to `mmc8.xlsx`). It's important to note that the data analysis had excluded the Y chromosome and mitochondrial DNA to minimize sex-based bias.
 
 #### Log-Transformed counts per million (logCPM) Distributions
+
 Best et al. were able to produce a scatter plot in their report (Figure 1D) that described a correlation plot of mRNAs detected in healthy donor (HD) platelets and cancer patients’ TEPs, and on the graph was a related Pearsons' correlation coefficient (as r), the associated p value, and the sample size. Best et al. did not describe the process by which they produced this scatter plot, and hence this report could only assume a method that would produce a similar result and proceed. This report was able to use R libraries 'EnsDb.Hsapiens.v86', 'edgeR', 'readr', 'org.Hs.eg.db', and 'ggplot2' to create our reproductions of the original report's scatter plot. Without a discolsed method from Best et al., we were unable to produce graphs that contained the specific information seen in the original graph, including the Pearsons' correlation coefficient (as r), the associated p value, and the sample size. 
 
 Differential gene expression was assessed using a filtering strategy analogous to that employed in edgeR, based on logCPM thresholds to retain sufficiently expressed genes. Due to limited methodological transparency in the original publication, some statistical thresholds and preprocessing decisions were approximated based on available data and description.
 
 #### Heatmaps
+
 Heatmaps based on the mRNA profiles are included in Best et al.’s report (Figure 1E, Figure 2A), without instructions describing the method they used to produce these heatmaps in the report or the supplemental information. Thus, this study produces heatmaps that use the same data to feasibly reproduce the original graphs but not necessarily via the same process, as it is undisclosed by the authors of the original report. This report uses R libraries ‘limma’ and ‘dplyr’ to filter the data to include specific focal data (being separating groups by healthy donor, cancer patient and separating by cancer type) and reproduce the heatmaps from the original report. However, without specific guidance, this study does not present on the graph itself certain statistics seen in Best et al’s heatmaps, including a displayed population size and the fisher’s exact test value.
 
 #### Gene Set Enrichment Analysis
+
 An important distinction that separates our report from Best et al., is that we used CAMERA over DAVID-GO (Database for Annotation, Visualization, and Integrated Discovery - Gene Ontology) in our gene set enrichment analysis. CAMERA is a function of the 'limma' R package that is capable of gene set enrichment analysis, and we chose to use CAMERA over the DAVID-GO method described by Best et al., because we lacked data regarding the exact gene sets that they used in their analysis, which would've been critical in our reproduction of their results. To mitigate this discrepancy, we substituted DAVID-GO analysis with CAMERA through 'limma', and proceeded with our data analysis through the report.
 
 #### Classification and Validation
+
 Support vector machine (SVM) models were implemented in Python using the scikit-learn library. In the original report, Best et al. applied variations of k-fold cross-validation techniques, being leave-one-out (k=1) and 10-fold cross validation, to produce models and evaluate their accuracy for both binary and multiclass classification tasks. Linear kernel SVMs were trained using feature gene sets specified in the supplementary tables. Where hyperparameter values (e.g., C, gamma) were not disclosed, parameter tuning was performed empirically to optimize classification performance.
 
 Validation was conducted using the original partitioning schema from Best et al. (2015), with 175 samples allocated to training and 108 to the validation cohort for a total 283 samples. Classifier performance was evaluated in terms of accuracy, sensitivity, and specificity.
 
 ## Experimental Design and Workflow
-
-- [ ] Is decisive on the appropriateness of the methods and analysis used in the paper and 
-providing insight into plausible improvements of the experimental design and workflow.
 
 The methodology employed by Best et al. (2015) is largely appropriate for investigating tumor-educated platelets (TEPs) as a non-invasive biomarker source for cancer diagnostics. Their design demonstrates ethical and practical considerations by prioritizing minimal patient burden through the use of blood-based liquid biopsies rather than tissue sampling. This aligns well with the clinical utility they propose—routine, low-risk diagnostics that can be applied even in vulnerable patient populations. Furthermore, the use of RNA-seq and a support vector machine (SVM) classifier for multiclass cancer prediction is methodologically sound and reflects a thoughtful integration of transcriptomic data with machine learning for diagnostic applications.
 
@@ -103,15 +93,6 @@ Moreover, the decision to omit genes located on the Y chromosome and mitochondri
 Overall, the experimental workflow is replicable and conceptually robust, but opportunities exist to broaden its inclusivity and interpretive depth without compromising clinical relevance.
 
 ## Results {#results}
-
-- [ ] Inspires dissemination of information and findings.
-
-- [ ] Attracts and continually promotes emotional and intellectual engagement.
-
-- [ ] Graphics are clear and reasonable replicas or improvements of the originals.
-
-- [ ] Insightful and intuitive report of analytical methods for target readership.
-
 
 ### Correlation of TEP mRNA Expression Between Cancer Patients and Healthy Donors
 
@@ -461,7 +442,7 @@ Gene Ontology (GO) analysis revealed that downregulated genes in cancer were pri
 
 #### Attempted Reproduction
 
-The `camera` function from the limma package to perform competitive gene set enrichment analysis on platelet RNA-seq data from cancer and healthy samples. Gene counts are preprocessed, normalized, and filtered to retain intron-spanning genes with sufficient expression. Differential expression is modeled using a design matrix, and gene sets from the MSigDB C2 collection (KEGG, Reactome, BioCarta) are mapped to ENSEMBL IDs for compatibility. Enriched pathways are then grouped by biological function to summarize the most affected processes in cancer-associated platelets
+The `camera` function from the `limma` package to perform competitive gene set enrichment analysis on platelet RNA-seq data from cancer and healthy samples. Gene counts are preprocessed, normalized, and filtered to retain intron-spanning genes with sufficient expression. Differential expression is modeled using a design matrix, and gene sets from the MSigDB C2 collection (KEGG, Reactome, BioCarta) are mapped to ENSEMBL IDs for compatibility. Enriched pathways are then grouped by biological function to summarize the most affected processes in cancer-associated platelets
 
 ```{r, message=FALSE, warning=FALSE}
 # find human intron-spanning genes
@@ -666,7 +647,7 @@ Gene set enrichment analysis revealed that downregulated pathways in cancer pati
 
 ![](./H_C_SVM.png)
 
-This confusion matrix shows that a classifier trained on 1,072 platelet-derived genes achieved 95% accuracy (p < 0.01) in distinguishing cancer patients from healthy individuals, correctly identifying 96% of cancer cases and 92% of healthy controls. The high performance underscores the diagnostic potential of platelet RNA profiles.
+This confusion matrix shows that a classifier trained on 1,072 platelet-derived genes achieved 95% accuracy (p < 0.01) in distinguishing cancer patients from healthy individuals, correctly identifying 96% of cancer cases and 92% of healthy controls. The high performance underlines the diagnostic potential of platelet RNA profiles.
 
 #### Attempted Reproduction
 
@@ -841,19 +822,9 @@ The multiclass SVM classifier achieved an overall accuracy of 69.6% with a 95% c
 
 ## Discussion
 
-- [ ] The success or difficulties in reproducing their results are used to critique the 
-findings and conclusions of the manuscript.
-
-- [ ] Is decisive on the appropriateness of the methods and analysis used in the paper and 
-providing insight into plausible improvements of the experimental design and workflow.
-
-- [ ] Comment on the appropriateness of the methods and analysis used in the paper.
-
-- [ ] Outline the success or difficulties you had reproducing their results.
-
 ### Success or Difficulties in Reproduction + Critique
 
-In reproducing the study by Best et al., scatter plots comparing log₂-transformed counts per million (log₂ CPM) between cancer patients and healthy donors yielded a Pearson correlation coefficient of r = 0.94, surpassing the originally reported r = 0.90. This strong correlation reflects the effectiveness of the reconstructed preprocessing pipeline, which included normalization, expression filtering, and batch correction where feasible. Although the absence of raw sequencing files (e.g., FASTQ) limited full replication of the original pipeline, thresholding criteria were carefully inferred from logCPM distributions and summary statistics. The high degree of concordance between expression profiles indicates that, even with approximated preprocessing steps, the platelet transcriptome reliably captures differential expression patterns distinguishing diseased from non-diseased states.
+In this study, reproducing the results presented by Best et al., scatter plots comparing log₂-transformed counts per million (log₂ CPM) between cancer patients and healthy donors yielded a Pearson correlation coefficient of r = 0.94, surpassing the originally reported r = 0.90. This strong correlation reflects the effectiveness of the reconstructed preprocessing pipeline, which included normalization, expression filtering, and batch correction where feasible. Although the absence of raw sequencing files (e.g., FASTQ) limited full replication of the original pipeline, thresholding criteria were carefully inferred from logCPM distributions and summary statistics. The high degree of concordance between expression profiles indicates that, even with approximated preprocessing steps, the platelet transcriptome reliably captures differential expression patterns distinguishing diseased from non-diseased states.
 
 Unsupervised clustering through heatmaps of the top 100 most variable genes also confirmed the original findings. These visualizations clearly separated cancer from healthy samples, supported by statistical significance (p < 0.0001 via Fisher's exact test), reinforcing the presence of distinct platelet mRNA signatures between the two groups. It is important to note that the lack of transparency regarding expression filtering thresholds and heatmap generation methods necessitated approximations, which, while effective, introduce potential reproducibility variance.
 
@@ -887,49 +858,44 @@ Addressing class imbalance is also important. Subtypes such as hepatobiliary can
 
 ## Conclusion {#conclusion}
 
-- [ ] Provides a summary of:
-    - [ ] results of the paper.
-
 Best et al. (2015) present a methodologically sound and reproducible framework for using platelet RNA-seq to classify cancer states and subtypes. While minor ambiguities in data labeling and gene mapping posed challenges, the majority of findings could be successfully reproduced with high fidelity. The analytical pipeline is appropriate, but future studies would benefit from improved transparency in metadata, cross-validation protocols, and biological replication to further solidify these compelling diagnostic insights.
 
 ## References
 
-- [ ] Citation, spelling and grammar correct and keeps to word limit.
+Akbani et al. (2014), A pan-cancer proteomic perspective on The Cancer Genome Atlas. Nat. Commun.
 
-Akbani et al. (2014), [A pan-cancer proteomic perspective on The Cancer Genome Atlas. Nat. Commun.](https://pmc.ncbi.nlm.nih.gov/articles/PMC4109726/)
+Alix-Panabières et al. (2012), Challenges in circulating tumour cell research. Nat. Rev. Cancer.
 
-Golub et al. (1999), [Molecular classification of cancer: class discovery and class prediction by gene expression monitoring. Science.](https://pubmed.ncbi.nlm.nih.gov/10521349/)
+Best et al. (2011) Blood platelets contain tumor-derived RNA biomarkers
 
-Han et al. (2014), [The Pan-Cancer analysis of pseudogene expression reveals biologically and clinically relevant tumour subtypes. Nat. Commun.](https://pmc.ncbi.nlm.nih.gov/articles/PMC4339277/)
+Calverley et al. (2010), Significant downregulation of platelet gene expression in metastatic lung cancer. Clin. Transl. Sci.
 
-Hoadley et al. (2014),[Cancer Genome Atlas Research Network Multiplatform analysis of 12 cancer types reveals molecular classification within and across tissues of origin. Cell.](https://pmc.ncbi.nlm.nih.gov/articles/PMC4152462/)
+Crowley et al. (2013), Liquid biopsy: monitoring cancer-genetics in the blood. Nat. Rev. Clin. Oncol.
 
-Kandoth et al. (2013), [Mutational landscape and significance across 12 major cancer types. Nature.](https://pmc.ncbi.nlm.nih.gov/articles/PMC3927368/)
+Golub et al. (1999), Molecular classification of cancer: class discovery and class prediction by gene expression monitoring. Science.
 
-Ramaswamy et al. (2001), [Multiclass cancer diagnosis using tumor gene expression signatures. Proc. Natl. Acad. Sci.](https://pmc.ncbi.nlm.nih.gov/articles/PMC64998/)
+Haber and Velculescu (2014), Blood-based analyses of cancer: circulating tumor cells and circulating tumor DNA. Cancer Discov.
 
-Su et al. (2001), [Molecular classification of human carcinomas by use of gene expression signatures. Cancer Res.](https://pubmed.ncbi.nlm.nih.gov/11606367/)
+Han et al. (2014), The Pan-Cancer analysis of pseudogene expression reveals biologically and clinically relevant tumour subtypes. Nat. Commun.
 
-Alix-Panabières et al. (2012), [Challenges in circulating tumour cell research. Nat. Rev. Cancer.](https://pubmed.ncbi.nlm.nih.gov/25154812/)
+Hoadley et al. (2014),Cancer Genome Atlas Research Network Multiplatform analysis of 12 cancer types reveals molecular classification within and across tissues of origin. Cell.
 
-Crowley et al. (2013), [Liquid biopsy: monitoring cancer-genetics in the blood. Nat. Rev. Clin. Oncol.](https://pubmed.ncbi.nlm.nih.gov/23836314/)
+Kandoth et al. (2013), Mutational landscape and significance across 12 major cancer types. Nature.
 
-Haber and Velculescu (2014), [Blood-based analyses of cancer: circulating tumor cells and circulating tumor DNA. Cancer Discov. ](https://pmc.ncbi.nlm.nih.gov/articles/PMC4433544/)
+Klement et al. (2009), Platelets actively sequester angiogenesis regulators. Blood.
 
-Klement et al. (2009), [Platelets actively sequester angiogenesis regulators. Blood.](https://pmc.ncbi.nlm.nih.gov/articles/PMC2661866/)
+Kuznetsov et al. (2012), Identification of luminal breast cancers that establish a tumor-supportive macroenvironment defined by proangiogenic platelets and bone marrow-derived cells. Cancer Discov.
 
-Kuznetsov et al. (2012), [Identification of luminal breast cancers that establish a tumor-supportive macroenvironment defined by proangiogenic platelets and bone marrow-derived cells. Cancer Discov.](https://pmc.ncbi.nlm.nih.gov/articles/PMC3517696/)
+McAllister and Weinberg (2014), The tumour-induced systemic environment as a critical regulator of cancer progression and metastasis. Nat. Cell Biol.
 
-McAllister and Weinberg (2014), [The tumour-induced systemic environment as a critical regulator of cancer progression and metastasis. Nat. Cell Biol.](https://pmc.ncbi.nlm.nih.gov/articles/PMC6220424/)
+Power et al. (2009), High-throughput proteomics detection of novel splice isoforms in human platelets. PLoS ONE.
 
-Quail and Joyce (2013), [Microenvironmental regulation of tumor progression and metastasis. Nat. Med.](https://pmc.ncbi.nlm.nih.gov/articles/PMC3954707/)
+Quail and Joyce (2013), Microenvironmental regulation of tumor progression and metastasis. Nat. Med.
 
-Power et al. (2009), [High-throughput proteomics detection of novel splice isoforms in human platelets. PLoS ONE. ](https://pmc.ncbi.nlm.nih.gov/articles/PMC2654914/)
+Ramaswamy et al. (2001), Multiclass cancer diagnosis using tumor gene expression signatures. Proc. Natl. Acad. Sci.
 
-Rowley et al. (2011), [Genome-wide RNA-seq analysis of human and mouse platelet transcriptomes. Blood.](https://pmc.ncbi.nlm.nih.gov/articles/PMC3193274/)
+Rowley et al. (2011), Genome-wide RNA-seq analysis of human and mouse platelet transcriptomes. Blood.
 
-Schubert et al. 2014, [A tour through the transcriptional landscape of platelets. Blood.](https://pmc.ncbi.nlm.nih.gov/articles/PMC4110657/)
+Schubert et al. 2014, A tour through the transcriptional landscape of platelets. Blood.
 
-Calverley et al. (2010), [Significant downregulation of platelet gene expression in metastatic lung cancer. Clin. Transl. Sci.](https://pmc.ncbi.nlm.nih.gov/articles/PMC3427741/)
-
-Best et al. (2011) [Blood platelets contain tumor-derived RNA biomarkers](https://pmc.ncbi.nlm.nih.gov/articles/PMC4644263/)
+Su et al. (2001), Molecular classification of human carcinomas by use of gene expression signatures. Cancer Res.
